@@ -499,7 +499,7 @@ function openBlogArticle(blogId) {
 
 // ── 8. ИНИЦИАЛИЗАЦИЯ ────────────────────────────────────────────
 const initApp = async function () {
-  // ── Загрузка данных: Supabase → fallback localStorage ───────────
+  // ── Загрузка данных: Supabase → localStorage → DEFAULT_DATA ─────
   if (typeof SupabaseDB !== 'undefined') {
     // Показываем индикатор загрузки
     document.body.style.opacity = '0.6';
@@ -508,11 +508,63 @@ const initApp = async function () {
       await SupabaseDB.loadAll();
       console.log('[CMS] Данные загружены с Supabase');
     } catch (e) {
-      console.warn('[CMS] Ошибка Supabase, используем localStorage:', e);
+      console.warn('[CMS] Ошибка Supabase, переходим к localStorage:', e);
       if (typeof SiteState !== 'undefined') SiteState.load();
       else DataManager.initDefaults();
     }
     document.body.style.opacity = '1';
+
+    // ── Проверка: не оказались ли все коллекции пустыми ───────────
+    // Такое возможно даже без ошибки (RLS вернул [] без exception).
+    // Если пусто — пробуем добрать данные из localStorage.
+    if (typeof SiteState !== 'undefined') {
+      const _isEmpty = obj => !obj || Object.keys(obj).length === 0;
+      const afterSupabase =
+        _isEmpty(SiteState.get('doctors'))  &&
+        _isEmpty(SiteState.get('reviews'))  &&
+        _isEmpty(SiteState.get('blogs'))    &&
+        _isEmpty(SiteState.get('promos'));
+
+      if (afterSupabase) {
+        console.warn('[CMS] Supabase вернул пустые коллекции. Пробуем localStorage...');
+
+        // Пытаемся загрузить из localStorage
+        const lsData = SiteState.load();
+        const _isEmptyLs = obj => !obj || Object.keys(obj).length === 0;
+        const lsAlsoEmpty =
+          _isEmptyLs(lsData.doctors)  &&
+          _isEmptyLs(lsData.reviews)  &&
+          _isEmptyLs(lsData.blogs)    &&
+          _isEmptyLs(lsData.promos);
+
+        if (lsAlsoEmpty) {
+          // ── Последний резерв: DEFAULT_DATA ──────────────────────
+          console.warn('[CMS] localStorage тоже пуст. Загружаем DEFAULT_DATA...');
+          if (typeof DEFAULT_DATA !== 'undefined' && SiteState._data) {
+            // Врачей нет в DEFAULT_DATA — оставляем пустыми
+            SiteState._data.reviews  = JSON.parse(JSON.stringify(DEFAULT_DATA.reviews  || {}));
+            SiteState._data.services = JSON.parse(JSON.stringify(DEFAULT_DATA.services || {}));
+            SiteState._data.blogs    = JSON.parse(JSON.stringify(DEFAULT_DATA.blogs    || {}));
+            SiteState._data.promos   = JSON.parse(JSON.stringify(DEFAULT_DATA.promos   || {}));
+          }
+        } else {
+          console.log('[CMS] Данные восстановлены из localStorage');
+        }
+      }
+    }
+
+    // ── Итоговый отчёт о загруженных данных ───────────────────────
+    if (typeof SiteState !== 'undefined') {
+      const _count = obj => obj ? Object.keys(obj).length : 0;
+      console.log(
+        '[CMS Init] doctors:', _count(SiteState.get('doctors')),
+        '| reviews:',  _count(SiteState.get('reviews')),
+        '| blogs:',    _count(SiteState.get('blogs')),
+        '| promos:',   _count(SiteState.get('promos')),
+        '| services:', _count(SiteState.get('services'))
+      );
+    }
+
   } else {
     if (typeof SiteState !== 'undefined') SiteState.load();
     else DataManager.initDefaults();
