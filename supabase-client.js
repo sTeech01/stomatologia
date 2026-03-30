@@ -8,8 +8,8 @@
 
 // ── 1. КОНФИГУРАЦИЯ ──────────────────────────────────────────────
 // Замените на свои значения из Supabase → Project Settings → API
-const SUPABASE_URL     = 'https://ВАШИ_ID.supabase.co';
-const SUPABASE_ANON_KEY = 'ВАШИ_ANON_KEY_ИЗ_SUPABASE';
+const SUPABASE_URL     = 'https://mtfbuphupgbruobefrnn.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_tAgmhJQ2ZFFn3R1sSwYsIQ_cxaEjdH2';
 
 // Инициализация клиента
 const _sb = (typeof supabase !== 'undefined')
