@@ -29,6 +29,8 @@ const SupabaseDB = {
   /**
    * Загружает все таблицы параллельно и записывает данные в SiteState.
    * Вызывается в initApp() при старте сайта.
+   * Возвращает { data, fromCache: false } при успехе.
+   * Выбрасывает ошибку, если данные не получены — initApp() перейдёт к fallback.
    */
   async loadAll() {
     if (!_sb) throw new Error('Supabase SDK не инициализирован');
@@ -43,6 +45,43 @@ const SupabaseDB = {
         _sb.from('services').select('*').order('created_at'),
         _sb.from('svc_pages').select('*'),
       ]);
+
+    // ── Подробное логирование каждой таблицы ──────────────────────
+    console.log('[Supabase] doctors:',   doctors.data?.length,   doctors.error   || 'OK');
+    console.log('[Supabase] reviews:',   reviews.data?.length,   reviews.error   || 'OK');
+    console.log('[Supabase] blogs:',     blogs.data?.length,     blogs.error     || 'OK');
+    console.log('[Supabase] promos:',    promos.data?.length,    promos.error    || 'OK');
+    console.log('[Supabase] services:',  services.data?.length,  services.error  || 'OK');
+    console.log('[Supabase] svcPages:',  svcPages.data?.length,  svcPages.error  || 'OK');
+    console.log('[Supabase] settings:',  settings.data ? 1 : 0,  settings.error  || 'OK');
+
+    // ── Проверка ошибок по каждой таблице ─────────────────────────
+    // Логируем ошибки, но продолжаем — частичная загрузка лучше, чем полный провал
+    if (doctors.error)  console.warn('[Supabase] Ошибка doctors:',  doctors.error);
+    if (reviews.error)  console.warn('[Supabase] Ошибка reviews:',  reviews.error);
+    if (blogs.error)    console.warn('[Supabase] Ошибка blogs:',    blogs.error);
+    if (promos.error)   console.warn('[Supabase] Ошибка promos:',   promos.error);
+    if (services.error) console.warn('[Supabase] Ошибка services:', services.error);
+    if (svcPages.error) console.warn('[Supabase] Ошибка svcPages:', svcPages.error);
+    if (settings.error) console.warn('[Supabase] Ошибка settings:', settings.error);
+
+    // ── Защита от пустого ответа (RLS или сетевая проблема) ───────
+    // Если ВСЕ основные коллекции вернули пустые массивы одновременно —
+    // это признак заблокированного RLS или проблемы с сетью.
+    // Выбрасываем ошибку, чтобы initApp() перешёл к fallback на localStorage.
+    const allEmpty =
+      (!doctors.data  || doctors.data.length  === 0) &&
+      (!reviews.data  || reviews.data.length  === 0) &&
+      (!blogs.data    || blogs.data.length    === 0) &&
+      (!promos.data   || promos.data.length   === 0) &&
+      (!services.data || services.data.length === 0);
+
+    if (allEmpty) {
+      throw new Error(
+        '[Supabase] Все коллекции пустые. Возможно, не настроены RLS-политики. ' +
+        'Выполните SQL из комментария в конце supabase-client.js.'
+      );
+    }
 
     // Преобразуем массивы строк в объекты { id: row }
     const toMap = (arr) => (arr || []).reduce((m, r) => ({ ...m, [r.id]: r }), {});
@@ -98,9 +137,16 @@ const SupabaseDB = {
         services:   toMap(services.data),
         svcPages:   svcPagesMap,
       };
+
+      // ── Заполняем отсутствующие поля значениями из CMS_DEFAULTS ──
+      // Важно вызывать после записи _data, чтобы не было undefined-полей
+      if (typeof SiteState._fill === 'function') {
+        SiteState._fill();
+      }
     }
 
-    return SiteState ? SiteState._data : {};
+    // Возвращаем результат в формате { data, fromCache }
+    return { data: SiteState ? SiteState._data : {}, fromCache: false };
   },
 
   // ── ВРАЧИ ────────────────────────────────────────────────────────
@@ -343,3 +389,21 @@ window.migrateToSupabase = async function () {
   console.log('[Migration] Перенесено:', results);
   alert('Миграция завершена! Перенесено: ' + results.length + ' записей.');
 };
+
+/*
+  ══════════════════════════════════════════════════════════════════
+  ВАЖНО: Если сайт показывает пустые разделы — выполни этот SQL
+  в Supabase → SQL Editor (левое меню).
+
+  Это открывает публичное чтение для анонимных посетителей сайта.
+  Без этих политик RLS блокирует все SELECT-запросы с anon key.
+  ══════════════════════════════════════════════════════════════════
+
+  CREATE POLICY "public read doctors"   ON doctors       FOR SELECT USING (true);
+  CREATE POLICY "public read reviews"   ON reviews       FOR SELECT USING (true);
+  CREATE POLICY "public read blogs"     ON blogs         FOR SELECT USING (true);
+  CREATE POLICY "public read promos"    ON promos        FOR SELECT USING (true);
+  CREATE POLICY "public read services"  ON services      FOR SELECT USING (true);
+  CREATE POLICY "public read svc_pages" ON svc_pages     FOR SELECT USING (true);
+  CREATE POLICY "public read settings"  ON site_settings FOR SELECT USING (true);
+*/
