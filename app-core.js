@@ -282,12 +282,21 @@ const RenderManager = {
   applySectionVisibility() {
     const sections = (typeof SiteState!=='undefined')?(SiteState.get('visibility')||{}):DataManager.getSections();
     if (!sections) return;
-    Object.entries(sections).forEach(([id,vis]) => {
+    Object.entries(sections).forEach(([id, vis]) => {
+      // Скрываем/показываем страницу
       const page = document.getElementById(`page-${id}`);
       if (page) page.style.display = vis ? '' : 'none';
-      document.querySelectorAll('.nav-link, .mob-nav-link').forEach(link => {
-        const oc = link.getAttribute('onclick')||'';
-        if (oc.includes(`'${id}'`)) link.style.display = vis ? '' : 'none';
+
+      // Синхронизируем все навигационные ссылки:
+      // .nav-link — десктоп, .mob-link — мобильное бургер-меню
+      // Ищем по data-section (надёжно) или по содержимому onclick (fallback)
+      document.querySelectorAll('.nav-link, .mob-link').forEach(link => {
+        const section = link.dataset.section;
+        const oc = link.getAttribute('onclick') || '';
+        const matches = section
+          ? section === id
+          : oc.includes(`'${id}'`);
+        if (matches) link.style.display = vis ? '' : 'none';
       });
     });
   },
