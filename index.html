@@ -2842,24 +2842,7 @@ input[type="file"]{
         <h2 class="s-title">Врачи клиники</h2>
         <p class="s-sub">Опытные специалисты с постоянным повышением квалификации</p>
       </div>
-      <div class="doc-grid">
-        <div class="doc-card" onclick="openDocModal('korovkina')">
-          <div class="doc-photo doc-photo--img"><img src="Стоматология.Доктор1.png" alt="Коровкина Алина Сергеевна" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block"/><div class="doc-spec-badge">Ортодонт</div></div>
-          <div class="doc-body"><div class="doc-name">Коровкина Алина Сергеевна</div><div class="doc-exp">Опыт 12 лет · Брекеты, прикус</div><button class="doc-btn" onclick="openLeadModal('lead')">Оставить заявку</button></div>
-        </div>
-        <div class="doc-card" onclick="openDocModal('medzhidova')">
-          <div class="doc-photo doc-photo--img"><img src="Стоматология.Доктор2.png" alt="Меджидова Анжела Вагифовна" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block"/><div class="doc-spec-badge">Терапевт</div></div>
-          <div class="doc-body"><div class="doc-name">Меджидова Анжела Вагифовна</div><div class="doc-exp">Опыт 10 лет · Кариес, пломбы</div><button class="doc-btn" onclick="openLeadModal('lead')">Оставить заявку</button></div>
-        </div>
-        <div class="doc-card" onclick="openDocModal('simonyan')">
-          <div class="doc-photo doc-photo--img"><img src="Стоматология.Доктор3.png" alt="Симонян Елена Эдвардовна" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block"/><div class="doc-spec-badge">Хирург</div></div>
-          <div class="doc-body"><div class="doc-name">Симонян Елена Эдвардовна</div><div class="doc-exp">Опыт 15 лет · Удаление, импланты</div><button class="doc-btn" onclick="openLeadModal('lead')">Оставить заявку</button></div>
-        </div>
-        <div class="doc-card" onclick="openDocModal('egoricheva')">
-          <div class="doc-photo doc-photo--img"><img src="Стоматология.Доктор4.png" alt="Егоричева Марта Константиновна" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block"/><div class="doc-spec-badge">Ортопед</div></div>
-          <div class="doc-body"><div class="doc-name">Егоричева Марта Константиновна</div><div class="doc-exp">Опыт 9 лет · Протезирование</div><button class="doc-btn" onclick="openLeadModal('lead')">Оставить заявку</button></div>
-        </div>
-      </div>
+      <div class="doc-grid" id="home-doctors-grid"></div>
       <div class="t-center mt-32"><button class="btn-outline-big" onclick="showPage('doctors')">Все врачи клиники →</button></div>
     </div>
   </section>
@@ -5259,20 +5242,95 @@ document.addEventListener('keydown', e => {
 });
 
 // Рандомизация врачей на главной
-function shuffleHomeDoctors() {
-  const docGrid = document.querySelector('#page-home .doc-grid');
-  if (!docGrid) return;
-  
-  const cards = Array.from(docGrid.children);
-  // Перемешиваем массив карточек
-  for (let i = cards.length - 1; i > 0; i--) {
+// ── Синхронизация врачей: главная ← страница врачей ─────────────
+//
+// ЛОГИКА:
+// 1. RenderManager из app-core.js рендерит врачей в #doctors-page-grid
+//    (это происходит лениво — только при переходе на вкладку "Врачи")
+// 2. Мы вешаем MutationObserver на этот контейнер.
+//    Как только карточки появились — копируем их на главную в случайном
+//    порядке, показывая не более 4 штук.
+// 3. При каждом переходе на главную (showPage('home')) обновляем порядок.
+// 4. Если врачи ещё не загружены при первом открытии главной —
+//    принудительно вызываем RenderManager.renderDoctors(), чтобы
+//    запустить загрузку из Supabase.
+
+function syncHomeDoctors() {
+  const homeGrid    = document.getElementById('home-doctors-grid');
+  const sourceGrid  = document.getElementById('doctors-page-grid');
+  if (!homeGrid || !sourceGrid) return;
+
+  const sourceCards = Array.from(sourceGrid.children);
+  if (sourceCards.length === 0) return;
+
+  // Случайная перестановка (Fisher-Yates)
+  const shuffled = [...sourceCards];
+  for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [cards[i], cards[j]] = [cards[j], cards[i]];
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
-  
-  // Очищаем grid и добавляем карточки в новом порядке
-  docGrid.innerHTML = '';
-  cards.forEach(card => docGrid.appendChild(card));
+
+  // Берём максимум 4, клонируем (не перемещаем — страница врачей должна остаться)
+  homeGrid.innerHTML = '';
+  shuffled.slice(0, 4).forEach(card => {
+    homeGrid.appendChild(card.cloneNode(true));
+  });
+}
+
+// Наблюдаем за #doctors-page-grid: как только появятся карточки — синхронизируем
+(function() {
+  const sourceGrid = document.getElementById('doctors-page-grid');
+  if (!sourceGrid) return;
+
+  const observer = new MutationObserver(function(mutations) {
+    const hasCards = mutations.some(m => m.addedNodes.length > 0);
+    if (hasCards) syncHomeDoctors();
+  });
+
+  observer.observe(sourceGrid, { childList: true });
+})();
+
+// Хук на showPage: при переходе на главную — обновляем порядок или запускаем загрузку
+const _origShowPage = showPage;
+showPage = function(key) {
+  _origShowPage(key);
+  if (key === 'home') {
+    const sourceGrid = document.getElementById('doctors-page-grid');
+    if (sourceGrid && sourceGrid.children.length > 0) {
+      // Данные уже есть — просто перемешиваем
+      syncHomeDoctors();
+    } else {
+      // Данных нет — принудительно загружаем через RenderManager
+      if (typeof RenderManager !== 'undefined' && RenderManager.renderDoctors) {
+        RenderManager.renderDoctors();
+        // syncHomeDoctors вызовет MutationObserver автоматически
+      }
+    }
+  }
+};
+
+// При первой загрузке страницы — пробуем загрузить врачей
+// (после того как app-core.js инициализируется)
+function initHomeDoctors() {
+  const sourceGrid = document.getElementById('doctors-page-grid');
+  if (sourceGrid && sourceGrid.children.length > 0) {
+    syncHomeDoctors();
+    return;
+  }
+  if (typeof RenderManager !== 'undefined' && RenderManager.renderDoctors) {
+    RenderManager.renderDoctors();
+    // MutationObserver сработает когда данные придут из Supabase
+  }
+}
+
+// Запускаем с небольшой задержкой — даём app-core.js время инициализироваться
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(initHomeDoctors, 500);
+});
+
+// Старая функция оставлена для совместимости (больше не используется)
+function shuffleHomeDoctors() {
+  syncHomeDoctors();
 }
 
 
