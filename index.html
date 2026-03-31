@@ -1189,7 +1189,7 @@
   display:none;
   min-height:100vh;
   background:var(--c-bg);
-  padding-top:var(--header-h);
+  padding-top:0;
 }
 .admin-page.show{
   display:block;
@@ -1197,7 +1197,7 @@
 .admin-container{
   max-width:1400px;
   margin:0 auto;
-  padding:40px 24px;
+  padding:16px 24px 40px;
 }
 .admin-header-page{
   display:flex;
@@ -1726,7 +1726,7 @@ input[type="file"]{
   display:none;
   min-height:100vh;
   background:var(--c-bg);
-  padding-top:var(--header-h);
+  padding-top:0;
 }
 .admin-page.show{
   display:block;
@@ -1734,7 +1734,7 @@ input[type="file"]{
 .admin-container{
   max-width:1400px;
   margin:0 auto;
-  padding:40px 24px;
+  padding:16px 24px 40px;
 }
 .admin-header-page{
   display:flex;
@@ -3887,9 +3887,6 @@ input[type="file"]{
 <!--                   JAVASCRIPT                               -->
 <!-- ========================================================== -->
 
-<!-- ══════════════════════════════════════════════════════════════
-     СТРАНИЦА АДМИН-ПАНЕЛИ
-     Вставить перед закрывающим тегом 
 <!-- ADMIN LOGIN MODAL -->
 <div id="adminLoginModal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);align-items:center;justify-content:center">
   <div style="background:var(--c-card);border-radius:var(--r);padding:40px;width:100%;max-width:380px;box-shadow:var(--shadow-lg);margin:20px">
@@ -4067,14 +4064,6 @@ input[type="file"]{
   });
 })();
 </script>
-</body>
-     ══════════════════════════════════════════════════════════════ -->
-<!-- ══════════════════════════════════════════════════════════════
-     СТРАНИЦА АДМИН-ПАНЕЛИ
-     Вставить перед закрывающим тегом 
-
-</body>
-     ══════════════════════════════════════════════════════════════ -->
 <div class="page admin-page" id="page-admin">
   <div class="admin-container">
     
@@ -5369,4 +5358,5 @@ document.head.appendChild(style);
 <script src="app-core.js"></script>
 <script src="admin.js"></script>
 
+</body>
 </html>
