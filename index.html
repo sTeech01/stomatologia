@@ -14,1068 +14,41 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+
+<!-- ═══ Синхронная инициализация темы ДО загрузки стилей ═══ -->
 <script>
-// Синхронная инициализация темы и шрифта ДО загрузки стилей
 (function() {
   try {
     const theme = localStorage.getItem('ds_theme') || 'light';
-    const font = localStorage.getItem('ds_font') || 'n';
+    const font  = localStorage.getItem('ds_font')  || 'n';
     document.documentElement.setAttribute('data-theme', theme);
-    if (font === 'l') document.body.classList.add('fs-lg');
-    else if (font === 'x') document.body.classList.add('fs-xl');
+    if (font === 'l') document.body && document.body.classList.add('fs-lg');
+    else if (font === 'x') document.body && document.body.classList.add('fs-xl');
   } catch(e) {}
 })();
 </script>
+
+<!-- ═══ CSS Архитектура: Mobile-First Progressive Enhancement ═══
+     Порядок подключения обязателен:
+     1. base.css       — мобильная база, без media queries
+     2. layout.css     — сетки и контейнеры
+     3. components.css — UI-компоненты
+     4. responsive.css — ВСЕ media queries (единственный файл)
+═══════════════════════════════════════════════════════════════ -->
+<link rel="preload" href="css/base.css" as="style"/>
+<link rel="preload" href="css/layout.css" as="style"/>
+<link rel="preload" href="css/components.css" as="style"/>
+<link rel="preload" href="css/responsive.css" as="style"/>
+<link rel="stylesheet" href="css/base.css"/>
+<link rel="stylesheet" href="css/layout.css"/>
+<link rel="stylesheet" href="css/components.css"/>
+<link rel="stylesheet" href="css/responsive.css"/>
+
+<!-- ═══ Инлайн-стили: только то, что не вынесено в CSS-файлы ═══
+     Здесь остаются: admin-панель, сложные страницы услуг, модал врача
+     и прочие компоненты, требующие отдельного рефакторинга в v2.
+═══════════════════════════════════════════════════════════════ -->
 <style>
-/* ============================================================
-   ПЕРЕМЕННЫЕ — СВЕТЛАЯ ТЕМА
-   ============================================================ */
-:root {
-  --c-bg:        #ffffff;
-  --c-bg2:       #f5f0e8;
-  --c-bg3:       #ece4d4;
-  --c-card:      #ffffff;
-  --c-border:    #e8e0d0;
-  --c-text:      #1a2332;
-  --c-text2:     #4a5568;
-  --c-text3:     #8b96a5;
-  --c-accent:    #6b7280;
-  --c-accent2:   #4b5563;
-  --c-accent-bg: #f1f2f4;
-  --c-header-bg: rgba(255,255,255,0.96);
-  --shadow:      0 4px 20px rgba(26,35,50,0.08);
-  --shadow-lg:   0 12px 40px rgba(26,35,50,0.14);
-  --r:           16px;
-  --r-sm:        8px;
-  --tr:          all 0.25s ease;
-  --fd:          'Libre Baskerville', Georgia, serif;
-  --fb:          'Lato', 'Helvetica Neue', Arial, sans-serif;
-  --logo-filter: none;
-}
-/* ТЁМНАЯ ТЕМА */
-[data-theme="dark"] {
-  --c-bg:        #0e1720;
-  --c-bg2:       #162030;
-  --c-bg3:       #1d2a3a;
-  --c-card:      #162030;
-  --c-border:    #233040;
-  --c-text:      #e2e8f0;
-  --c-text2:     #94a3b8;
-  --c-text3:     #64748b;
-  --c-accent:    #6b7280;
-  --c-accent2:   #4b5563;
-  --c-accent-bg: #1e293b;
-  --c-header-bg: rgba(14,23,32,0.97);
-  --shadow:      0 4px 20px rgba(0,0,0,0.35);
-  --shadow-lg:   0 12px 40px rgba(0,0,0,0.5);
-  --logo-filter: invert(1) brightness(1.2);
-}
-/* ВЫСОКИЙ КОНТРАСТ */
-[data-theme="contrast"] {
-  --c-bg:        #0a0a0a;
-  --c-bg2:       #111111;
-  --c-bg3:       #1a1a1a;
-  --c-card:      #111111;
-  --c-border:    #333333;
-  --c-text:      #ffffff;
-  --c-text2:     #e0e0e0;
-  --c-text3:     #999999;
-  --c-accent:    #c9a84c;
-  --c-accent2:   #a8863a;
-  --c-accent-bg: #1a1508;
-  --c-header-bg: rgba(10,10,10,0.99);
-  --shadow:      0 0 0 1px #333;
-  --shadow-lg:   0 0 0 2px #444;
-  --logo-filter: invert(1) brightness(1.3) sepia(0.3) hue-rotate(10deg);
-}
-
-/* ============================================================
-   СБРОС И БАЗОВЫЕ СТИЛИ
-   ============================================================ */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{
-  font-family:var(--fb);
-  background:var(--c-bg);
-  color:var(--c-text);
-  overflow-x:hidden;
-  line-height:1.7;
-  font-weight:400;
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
-  transition:background 0.3s ease, color 0.3s ease;
-}
-a{text-decoration:none;color:inherit}
-button{cursor:pointer;border:none;font-family:var(--fb);background:none}
-ul{list-style:none}
-img{max-width:100%;display:block}
-
-/* ============================================================
-   ПЛАВАЮЩИЕ КНОПКИ — ТЕМА И ДОСТУПНОСТЬ (отдельно, минимализм)
-   ============================================================ */
-.fab-bar{
-  position:fixed;
-  bottom:24px; right:16px;
-  z-index:1200;
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-.fab{
-  width:44px; height:44px;
-  border-radius:50%;
-  background:var(--c-card);
-  color:var(--c-text);
-  border:1px solid var(--c-border);
-  box-shadow:var(--shadow);
-  display:flex; align-items:center; justify-content:center;
-  font-size:18px;
-  transition:var(--tr);
-  cursor:pointer;
-}
-.fab:hover{
-  background:var(--c-accent);
-  color:#fff;
-  border-color:var(--c-accent);
-  transform:scale(1.1);
-}
-/* Панель доступности */
-.a11y-panel{
-  position:fixed;
-  bottom:80px; right:16px;
-  z-index:1199;
-  width:260px;
-  background:var(--c-card);
-  border:1px solid var(--c-border);
-  border-radius:var(--r);
-  box-shadow:var(--shadow-lg);
-  padding:16px;
-  opacity:0; pointer-events:none;
-  transform:translateY(12px) scale(0.97);
-  transition:all 0.2s ease;
-}
-.a11y-panel.open{
-  opacity:1; pointer-events:all;
-  transform:translateY(0) scale(1);
-}
-.a11y-title{
-  font-size:12px; font-weight:800;
-  text-transform:uppercase; letter-spacing:0.08em;
-  color:var(--c-text3); margin-bottom:12px;
-}
-.a11y-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.a11y-btn{
-  padding:5px 10px; border-radius:50px;
-  font-size:12px; font-weight:700;
-  background:var(--c-bg2); color:var(--c-text2);
-  border:1.5px solid transparent;
-  transition:var(--tr); white-space:nowrap;
-}
-.a11y-btn:hover{border-color:var(--c-accent);color:var(--c-accent)}
-.a11y-btn.on{background:var(--c-accent);color:#fff;border-color:var(--c-accent)}
-.a11y-sep{width:100%;height:1px;background:var(--c-border);margin:8px 0}
-.a11y-check{
-  display:flex;align-items:center;gap:8px;
-  font-size:13px;color:var(--c-text2);
-  padding:4px 0; cursor:pointer;
-}
-.a11y-check input{accent-color:var(--c-accent)}
-.a11y-reset{
-  width:100%;padding:7px;
-  background:var(--c-bg2);color:var(--c-text3);
-  border-radius:var(--r-sm);font-size:12px;font-weight:700;
-  margin-top:8px; transition:var(--tr);
-}
-.a11y-reset:hover{background:#fee2e2;color:#dc2626}
-
-/* Большой шрифт */
-/* Модальные табы */
-
-/* Масштабирование шрифта через zoom */
-body.fs-lg{zoom:1.15 !important}
-body.fs-xl{zoom:1.3 !important}
-/* Focus visible */
-:focus-visible{outline:3px solid var(--c-accent);outline-offset:2px;border-radius:4px}
-
-/* ============================================================
-   ХЕДЕР
-   ============================================================ */
-.header{
-  position:fixed;top:0;left:0;right:0;z-index:1000;
-  background:var(--c-header-bg);
-  backdrop-filter:blur(10px);
-  border-bottom:1px solid var(--c-border);
-  transition:box-shadow 0.3s ease;
-}
-.header.scrolled{box-shadow:var(--shadow)}
-.hdr{
-  max-width:1280px;margin:0 auto;
-  padding:0 20px;height:68px;
-  display:flex;align-items:center;justify-content:space-between;
-  gap:16px;
-}
-.logo{display:flex;align-items:center;gap:10px;flex-shrink:0;cursor:pointer}
-.logo-icon{
-  width:38px;height:38px;
-  background:linear-gradient(135deg,var(--c-accent),var(--c-accent2));
-  border-radius:10px;display:flex;align-items:center;justify-content:center;
-  font-size:18px;flex-shrink:0;
-}
-.logo-name{font-family:var(--fd);font-size:21px;font-weight:700;color:var(--c-text);line-height:1.1}
-.logo-sub{font-size:10px;color:var(--c-accent);letter-spacing:0.1em;text-transform:uppercase;font-weight:700}
-.nav{display:flex;align-items:center;gap:2px}
-.nav-link{
-  padding:7px 11px;border-radius:var(--r-sm);
-  font-size:13px;font-weight:400;color:var(--c-text2);letter-spacing:0.01em;
-  transition:var(--tr);cursor:pointer;white-space:nowrap;
-}
-.nav-link:hover{color:var(--c-accent);background:var(--c-accent-bg)}
-.hdr-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.hdr-phone{font-size:14px;font-weight:700;color:var(--c-text);white-space:nowrap;text-decoration:none;line-height:1.2}
-.hdr-phone small{font-size:10px;color:var(--c-accent);display:block;font-weight:600}
-.btn-p{
-  background:linear-gradient(135deg,var(--c-accent),var(--c-accent2));
-  color:#fff;padding:10px 24px;border-radius:50px;
-  font-size:13px;font-weight:700;letter-spacing:0.3px;
-  box-shadow:0 2px 12px rgba(0,0,0,0.1);
-  transition:all 0.3s ease;
-  white-space:nowrap;
-  position:relative;
-  border:1px solid rgba(255,255,255,0.1);
-}
-.btn-p:hover{
-  transform:translateY(-2px);
-  box-shadow:0 4px 16px rgba(0,0,0,0.15);
-  border-color:rgba(255,255,255,0.2);
-}
-.btn-o{
-  background:transparent;color:var(--c-accent);
-  padding:9px 20px;border-radius:50px;
-  font-size:13px;font-weight:700;
-  border:2px solid var(--c-accent);
-  transition:var(--tr);white-space:nowrap;
-}
-.btn-o:hover{background:var(--c-accent-bg)}
-.burger{
-  display:none;flex-direction:column;gap:5px;
-  padding:8px;width:38px;height:38px;
-  align-items:center;justify-content:center;
-}
-.burger span{
-  display:block;width:22px;height:2px;
-  background:var(--c-text);border-radius:2px;
-  transition:var(--tr);
-}
-.burger.open span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
-.burger.open span:nth-child(2){opacity:0;transform:scaleX(0)}
-.burger.open span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
-
-/* ============================================================
-   МОБИЛЬНОЕ МЕНЮ
-   ============================================================ */
-.mob-nav{
-  display:none;position:fixed;
-  top:68px;left:0;right:0;bottom:0;
-  z-index:999;background:var(--c-bg);
-  padding:12px 16px 120px;
-  flex-direction:column;gap:2px;
-  overflow-y:auto;-webkit-overflow-scrolling:touch;
-}
-.mob-nav.open{display:flex;animation:navIn 0.22s ease}
-@keyframes navIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-.mob-link{
-  padding:13px 16px;border-radius:var(--r-sm);
-  font-size:16px;font-weight:600;color:var(--c-text);
-  border-bottom:1px solid var(--c-border);
-  cursor:pointer;transition:var(--tr);
-  min-height:48px;display:flex;align-items:center;
-}
-.mob-link:hover{color:var(--c-accent);background:var(--c-accent-bg)}
-.mob-actions{
-  display:flex;flex-direction:column;gap:10px;
-  margin-top:14px;padding-top:14px;
-  border-top:2px solid var(--c-border);
-}
-
-/* Липкая панель снизу (только мобайл) */
-.mob-cta{
-  display:none;position:fixed;bottom:0;left:0;right:0;
-  z-index:990;padding:10px 12px;
-  background:var(--c-bg);
-  border-top:1px solid var(--c-border);
-  box-shadow:0 -4px 16px rgba(0,0,0,0.1);
-  gap:10px;
-}
-.mob-cta a,.mob-cta button{
-  flex:1;min-height:46px;
-  font-size:14px;font-weight:700;
-  border-radius:50px;display:flex;
-  align-items:center;justify-content:center;gap:6px;
-}
-
-/* ============================================================
-   СТРАНИЦЫ
-   ============================================================ */
-.page{display:none;padding-top:68px;min-height:100vh}
-.page.on{display:block;animation:pgIn 0.3s ease}
-@keyframes pgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-
-/* ============================================================
-   ПЕРЕИСПОЛЬЗУЕМЫЕ КОМПОНЕНТЫ
-   ============================================================ */
-.section{padding:56px 20px}
-.section-inner{max-width:1280px;margin:0 auto}
-.s-tag{
-  display:inline-block;background:var(--c-accent-bg);color:var(--c-accent);
-  padding:5px 16px;border-radius:50px;
-  font-size:11px;font-weight:700;
-  letter-spacing:0.08em;text-transform:uppercase;margin-bottom:14px;
-}
-.s-title{
-  font-family:var(--fd);font-size:clamp(30px,4vw,50px);
-  font-weight:400;color:var(--c-text);
-  line-height:1.15;margin-bottom:14px;
-}
-.s-sub{font-size:16px;color:var(--c-text2);max-width:580px;margin:0 auto;line-height:1.8;font-weight:400}
-.s-head{text-align:center;margin-bottom:32px}
-.btn-big{
-  background:linear-gradient(135deg,var(--c-accent),var(--c-accent2));
-  color:#fff;padding:15px 36px;border-radius:50px;
-  font-size:16px;font-weight:700;
-  box-shadow:0 6px 20px rgba(107,114,128,0.4);
-  transition:var(--tr);display:inline-flex;align-items:center;gap:8px;
-}
-.btn-big:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(91,188,176,0.5)}
-.btn-outline-big{
-  background:var(--c-card);color:var(--c-accent);
-  padding:13px 32px;border-radius:50px;
-  font-size:15px;font-weight:700;
-  border:2px solid var(--c-accent);
-  transition:var(--tr);display:inline-flex;align-items:center;gap:8px;
-}
-.btn-outline-big:hover{background:var(--c-accent-bg);transform:translateY(-2px)}
-/* Хлебные крошки */
-.bc{
-  display:flex;gap:6px;align-items:center;
-  font-size:12px;color:var(--c-text3);
-  padding:0 0 8px;flex-wrap:wrap;
-}
-.bc a{color:var(--c-text3);cursor:pointer;transition:var(--tr)}
-.bc a:hover{color:var(--c-accent)}
-.bc span{color:var(--c-accent)}
-.bc-info{
-  background:var(--c-bg2);
-  padding:5px 14px;
-  border-radius:var(--r);
-  border-left:3px solid var(--c-accent);
-  margin-bottom:12px;
-}
-.bc-title{
-  font-size:10px;
-  text-transform:uppercase;
-  letter-spacing:0.8px;
-  color:var(--c-accent);
-  font-weight:700;
-  margin-bottom:3px;
-}
-.bc-desc{
-  font-size:12px;
-  color:var(--c-text2);
-  line-height:1.4;
-}
-
-/* ============================================================
-   ГЕРОЙ — ГЛАВНАЯ (premium)
-   ============================================================ */
-.hero{
-  min-height:calc(100vh - 68px);
-  background:var(--c-bg);
-  display:flex;align-items:center;position:relative;overflow:hidden;
-}
-/* тонкие декоративные круги */
-.hero::before,.hero::after{
-  content:'';position:absolute;border-radius:50%;pointer-events:none;
-}
-.hero::before{
-  width:700px;height:700px;
-  top:-200px;right:-200px;
-  background:radial-gradient(circle,rgba(107,114,128,0.07) 0%,transparent 65%);
-}
-.hero::after{
-  width:500px;height:500px;
-  bottom:-150px;left:-150px;
-  background:radial-gradient(circle,rgba(107,114,128,0.05) 0%,transparent 65%);
-}
-.hero-inner{
-  max-width:1280px;margin:0 auto;
-  padding:60px 20px;
-  display:grid;grid-template-columns:1fr 540px;gap:64px;align-items:center;
-  position:relative;z-index:1;
-  width:100%;
-}
-/* Левая колонка */
-.hero-eyebrow{
-  display:inline-flex;align-items:center;gap:8px;
-  font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;
-  color:var(--c-accent);margin-bottom:20px;
-}
-.hero-eyebrow::before{
-  content:'';display:block;width:28px;height:1px;background:var(--c-accent);
-}
-.hero-title{
-  font-family:var(--fd);
-  font-size:clamp(42px,5.2vw,68px);
-  font-weight:400;line-height:1.1;letter-spacing:-0.02em;
-  color:var(--c-text);margin-bottom:20px;
-}
-.hero-title em{
-  color:var(--c-accent);font-style:normal;
-  position:relative;
-}
-.hero-title em::after{
-  content:'';position:absolute;
-  left:0;bottom:-4px;width:100%;height:2px;
-  background:linear-gradient(90deg,var(--c-accent),transparent);
-  border-radius:2px;
-}
-.hero-desc{
-  font-size:16px;color:var(--c-text2);line-height:1.75;
-  margin-bottom:32px;max-width:440px;
-}
-/* Блок CTA */
-.hero-cta{display:flex;flex-direction:column;gap:12px;align-items:flex-start;margin-bottom:36px}
-.hero-cta-row{display:flex;align-items:center;gap:12px}
-.btn-hero-main{
-  display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(135deg,var(--c-accent),var(--c-accent2));
-  color:#fff;border-radius:14px;
-  padding:17px 40px;font-size:16px;font-weight:700;
-  letter-spacing:0.01em;
-  box-shadow:0 8px 28px rgba(107,114,128,0.35);
-  transition:var(--tr);min-width:260px;
-}
-.btn-hero-main:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(107,114,128,0.45)}
-.hero-free-tag{
-  display:inline-flex;align-items:center;gap:6px;
-  font-size:12px;font-weight:600;color:var(--c-text3);
-}
-.hero-free-tag span{
-  background:var(--c-accent-bg);color:var(--c-accent);
-  border-radius:50px;padding:3px 10px;font-size:11px;font-weight:700;
-}
-/* Доверительные иконки под CTA */
-.hero-trust{display:flex;gap:20px;flex-wrap:wrap}
-.hero-trust-item{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--c-text3)}
-.hero-trust-item strong{color:var(--c-text)}
-/* Правая колонка — фото */
-.hero-visual{position:relative;align-self:stretch;display:flex;align-items:stretch}
-.hero-card{
-  border-radius:28px;
-  overflow:hidden;width:100%;
-  display:flex;flex-direction:column;
-  min-height:500px;
-  position:relative;
-}
-.hero-card-photo{
-  flex:1;position:relative;overflow:hidden;
-  background:linear-gradient(135deg,#e5e7eb 0%,#d1d5db 100%);
-}
-.hero-card-photo img{
-  width:100%;height:100%;
-  object-fit:cover;object-position:center;
-  display:block;
-  transition:transform 0.7s ease;
-}
-.hero-card:hover .hero-card-photo img{transform:scale(1.04)}
-.hero-card-photo-overlay{
-  position:absolute;inset:0;
-  background:linear-gradient(to bottom,transparent 40%,rgba(15,20,30,0.65) 100%);
-}
-/* Оверлей на фото */
-.hero-card-over{
-  position:absolute;bottom:0;left:0;right:0;
-  padding:24px 28px;
-  display:flex;align-items:center;gap:14px;
-  z-index:2;
-}
-.hero-card-logo{
-  width:46px;height:46px;
-  background:linear-gradient(135deg,var(--c-accent),var(--c-accent2));
-  border-radius:12px;display:flex;align-items:center;justify-content:center;
-  font-size:22px;flex-shrink:0;
-}
-.hero-card-title{font-family:var(--fd);font-size:18px;font-weight:700;color:#fff;line-height:1.2}
-.hero-card-sub{font-size:11px;color:rgba(255,255,255,0.6);margin-top:2px}
-/* Плашки */
-.h-float{
-  position:absolute;background:rgba(255,255,255,0.92);
-  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-  border-radius:14px;padding:10px 14px;
-  box-shadow:0 4px 20px rgba(0,0,0,0.12);
-  display:flex;align-items:center;gap:8px;
-  z-index:3;border:1px solid rgba(255,255,255,0.6);
-}
-[data-theme="dark"] .h-float,[data-theme="contrast"] .h-float{
-  background:rgba(30,30,30,0.92);border-color:var(--c-border);
-}
-.hf1{top:16px;right:-12px;animation:fl1 3.5s ease-in-out infinite}
-.hf2{top:calc(50% + 38px);left:-12px;animation:fl2 3.8s ease-in-out infinite}
-@keyframes fl1{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-@keyframes fl2{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-.hf-ico{font-size:22px}
-.hf-t{font-size:12px;font-weight:700;color:var(--c-text)}
-.hf-s{font-size:11px;color:var(--c-text3)}
-.slogans{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.sl-tag{
-  background:var(--c-accent-bg);color:var(--c-accent);
-  padding:5px 12px;border-radius:50px;font-size:12px;font-weight:700;
-}
-
-/* ============================================================
-   ИНФО-ПОЛОСА — единый стиль всех 4 блоков
-   ============================================================ */
-.stats-bar{
-  background:var(--c-bg);
-  border-top:1px solid var(--c-border);
-  border-bottom:1px solid var(--c-border);
-  padding:0 20px;
-}
-[data-theme="dark"] .stats-bar,[data-theme="contrast"] .stats-bar{background:var(--c-bg2)}
-.stats-inner{
-  max-width:1000px;margin:0 auto;
-  display:grid;grid-template-columns:repeat(4,1fr);
-}
-.stat-item{
-  display:flex;flex-direction:column;align-items:center;
-  text-align:center;
-  padding:32px 16px;
-  position:relative;
-}
-.stat-item:not(:last-child)::after{
-  content:'';position:absolute;right:0;top:20%;height:60%;
-  width:1px;background:var(--c-border);
-}
-.stat-count{
-  font-family:var(--fd);
-  font-size:42px;font-weight:400;line-height:1;
-  letter-spacing:-0.02em;
-  color:var(--c-text);
-  margin-bottom:6px;
-}
-.stat-main{
-  font-size:12px;font-weight:600;
-  color:var(--c-text);
-  line-height:1.3;
-  margin-bottom:3px;
-  text-transform:uppercase;letter-spacing:0.06em;
-}
-.stat-sub{
-  font-size:11px;color:var(--c-text3);line-height:1.4;
-}
-.stat-ico{display:none}
-.stat-icon,.stat-num,.stat-label,.stat-text-item,.stat-ico-wrap,.stat-text-title{display:none}
-
-/* ============================================================
-   КАРТОЧКИ — ПЕРЕИСПОЛЬЗУЕМЫЕ
-   ============================================================ */
-/* Секция с фоном */
-.bg2{background:var(--c-bg2)}
-/* Карточка преимущества */
-
-/* Блок преимуществ — двухколоночный */
-
-/* ── Горизонтальный блок преимуществ ── */
-.adv-block{max-width:1100px;margin:0 auto}
-.adv-block-head{
-  display:flex;justify-content:space-between;align-items:flex-end;
-  margin-bottom:48px;flex-wrap:wrap;gap:20px;
-}
-.adv-block-left{}
-.adv-block-title{
-  font-family:var(--fd);font-size:clamp(22px,2.5vw,36px);
-  font-weight:400;line-height:1.15;color:var(--c-text);margin:10px 0 0;
-}
-.adv-block-cta{flex-shrink:0}
-.adv-grid6{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  border-top:1px solid var(--c-border);
-  border-left:1px solid var(--c-border);
-}
-.adv-cell{
-  padding:28px 24px;
-  border-right:1px solid var(--c-border);
-  border-bottom:1px solid var(--c-border);
-  transition:var(--tr);
-}
-.adv-cell:hover{background:var(--c-bg2)}
-.adv-cell:hover .adv-cell-title{color:var(--c-accent)}
-.adv-cell-ico{
-  width:36px;height:36px;
-  color:var(--c-text3);margin-bottom:16px;
-}
-.adv-cell-ico svg{width:36px;height:36px}
-.adv-cell-title{
-  font-size:14px;font-weight:700;color:var(--c-text);
-  margin-bottom:6px;line-height:1.3;transition:color var(--tr);
-}
-.adv-cell-text{font-size:12px;color:var(--c-text2);line-height:1.6}
-@media(max-width:760px){
-  .adv-grid6{grid-template-columns:repeat(2,1fr)}
-  .adv-block-head{flex-direction:column;align-items:flex-start}
-}
-@media(max-width:480px){
-  .adv-grid6{grid-template-columns:1fr}
-}
-
-.adv-layout{
-  display:grid;grid-template-columns:280px 1fr;gap:56px;align-items:start;
-}
-.adv-left{position:sticky;top:88px}
-.adv-heading{
-  font-family:var(--fd);font-size:clamp(22px,2.5vw,32px);
-  font-weight:400;line-height:1.15;color:var(--c-text);
-  margin:10px 0 12px;
-}
-.adv-lead{font-size:13px;color:var(--c-text2);line-height:1.6}
-.adv-right{display:flex;flex-direction:column}
-.adv-item{
-  display:grid;grid-template-columns:28px 1fr;gap:16px;
-  padding:13px 0;border-bottom:1px solid var(--c-border);
-  transition:var(--tr);align-items:start;
-}
-.adv-item:first-child{border-top:1px solid var(--c-border)}
-.adv-item:hover .adv-item-title{color:var(--c-accent)}
-.adv-item-num{
-  font-family:var(--fd);font-size:13px;font-weight:400;
-  color:var(--c-text3);letter-spacing:0.08em;
-  padding-top:3px;
-}
-.adv-item-title{
-  font-size:14px;font-weight:700;color:var(--c-text);
-  margin-bottom:2px;transition:color var(--tr);
-}
-.adv-item-text{font-size:12px;color:var(--c-text2);line-height:1.5}
-@media(max-width:900px){
-  
-/* ── Горизонтальный блок преимуществ ── */
-.adv-block{max-width:1100px;margin:0 auto}
-.adv-block-head{
-  display:flex;justify-content:space-between;align-items:flex-end;
-  margin-bottom:48px;flex-wrap:wrap;gap:20px;
-}
-.adv-block-left{}
-.adv-block-title{
-  font-family:var(--fd);font-size:clamp(22px,2.5vw,36px);
-  font-weight:400;line-height:1.15;color:var(--c-text);margin:10px 0 0;
-}
-.adv-block-cta{flex-shrink:0}
-.adv-grid6{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  border-top:1px solid var(--c-border);
-  border-left:1px solid var(--c-border);
-}
-.adv-cell{
-  padding:28px 24px;
-  border-right:1px solid var(--c-border);
-  border-bottom:1px solid var(--c-border);
-  transition:var(--tr);
-}
-.adv-cell:hover{background:var(--c-bg2)}
-.adv-cell:hover .adv-cell-title{color:var(--c-accent)}
-.adv-cell-ico{
-  width:36px;height:36px;
-  color:var(--c-text3);margin-bottom:16px;
-}
-.adv-cell-ico svg{width:36px;height:36px}
-.adv-cell-title{
-  font-size:14px;font-weight:700;color:var(--c-text);
-  margin-bottom:6px;line-height:1.3;transition:color var(--tr);
-}
-.adv-cell-text{font-size:12px;color:var(--c-text2);line-height:1.6}
-@media(max-width:760px){
-  .adv-grid6{grid-template-columns:repeat(2,1fr)}
-  .adv-block-head{flex-direction:column;align-items:flex-start}
-}
-@media(max-width:480px){
-  .adv-grid6{grid-template-columns:1fr}
-}
-
-.adv-layout{grid-template-columns:1fr;gap:32px}
-  .adv-left{position:static}
-}
-
-/* SVG иконки в блоках преимуществ и процесса */
-.adv-svg,.step-svg{
-  width:18px;height:18px;flex-shrink:0;
-  color:var(--c-text3);
-  display:flex;align-items:center;justify-content:center;
-  margin-top:3px;
-}
-.adv-svg svg,.step-svg svg{width:18px;height:18px}
-
-.adv-wrap{
-  max-width:860px;margin:0 auto;
-  display:flex;flex-direction:column;
-}
-.adv-row{
-  display:grid;grid-template-columns:200px 1fr;
-  align-items:baseline;
-  padding:20px 0;
-  border-bottom:1px solid var(--c-border);
-  gap:32px;
-  transition:var(--tr);
-}
-.adv-row:first-child{border-top:1px solid var(--c-border)}
-.adv-row:hover .adv-title{color:var(--c-accent)}
-.adv-num{
-  font-family:var(--fd);font-size:11px;color:var(--c-text3);
-  letter-spacing:0.12em;text-transform:uppercase;
-  display:flex;align-items:center;gap:10px;white-space:nowrap;
-}
-.adv-num b{font-family:var(--fd);font-size:32px;font-weight:400;color:var(--c-border);line-height:1}
-.adv-title{font-family:var(--fd);font-size:17px;font-weight:700;color:var(--c-text);margin-bottom:3px}
-.adv-text{color:var(--c-text2);font-size:13px;line-height:1.65}
-@media(max-width:640px){
-  .adv-row{grid-template-columns:1fr;gap:6px}
-  .adv-num b{font-size:22px}
-}
-/* Сервис карточка */
-.srv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-.srv-card{
-  background:var(--c-card);border-radius:var(--r);overflow:hidden;
-  box-shadow:0 2px 10px rgba(26,35,50,0.06);
-  transition:var(--tr);cursor:pointer;
-}
-[data-theme="dark"] .srv-card,[data-theme="contrast"] .srv-card{box-shadow:none;border:1px solid var(--c-border)}
-.srv-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg)}
-.srv-img{
-  height:180px;
-  background:linear-gradient(135deg,var(--c-accent-bg),var(--c-bg2));
-  display:flex;align-items:center;justify-content:center;font-size:58px;
-  overflow:hidden;
-}
-.srv-body{padding:20px}
-.srv-title{font-family:var(--fd);font-size:20px;font-weight:700;margin-bottom:6px;color:var(--c-text)}
-.srv-text{color:var(--c-text2);font-size:13px;margin-bottom:12px;line-height:1.6}
-.srv-price{font-weight:700;color:var(--c-accent);font-size:14px}
-.srv-more{color:var(--c-accent);font-size:13px;font-weight:700;margin-top:10px;display:inline-block}
-/* Шаги лечения */
-
-/* Процесс лечения — горизонтальная timeline */
-
-/* ── Горизонтальный процесс лечения ── */
-.steps-block{max-width:960px;margin:0 auto}
-.steps-block-head{text-align:center;margin-bottom:48px}
-.steps-block-tag{display:inline-block}
-.steps-block-title{
-  font-family:var(--fd);font-size:clamp(22px,2.5vw,32px);
-  font-weight:400;line-height:1.15;color:var(--c-text);margin:10px 0 12px;
-}
-.steps-block-lead{font-size:13px;color:var(--c-text2);line-height:1.6}
-.steps-h-row{
-  display:grid;
-  grid-template-columns:repeat(5,1fr) ;
-  align-items:start;
-  gap:0;
-}
-.step-h{
-  display:flex;flex-direction:column;align-items:center;
-  text-align:center;padding:0 12px;position:relative;
-}
-/* Иконка */
-.step-h-ico{
-  width:48px;height:48px;border-radius:50%;
-  border:1px solid var(--c-border);
-  display:flex;align-items:center;justify-content:center;
-  color:var(--c-text3);margin-bottom:16px;
-  background:var(--c-bg);position:relative;z-index:1;
-  transition:var(--tr);
-}
-.step-h-ico svg{width:20px;height:20px}
-.step-h:hover .step-h-ico{border-color:var(--c-accent);color:var(--c-accent)}
-/* Линия + стрелка между шагами */
-.step-h-arrow{
-  position:absolute;top:24px;left:calc(50% + 28px);
-  width:calc(100% - 56px);
-  display:flex;align-items:center;
-  pointer-events:none;
-}
-.step-h-arrow::before{
-  content:'';flex:1;height:1px;background:var(--c-border);
-}
-.step-arrow-svg{
-  width:16px;height:16px;color:var(--c-border);flex-shrink:0;margin-left:-1px;
-}
-.step-h:last-child .step-h-arrow{display:none}
-/* Текст */
-.step-h-num{font-size:10px;color:var(--c-text3);letter-spacing:0.12em;margin-bottom:6px}
-.step-h-title{font-size:13px;font-weight:700;color:var(--c-text);margin-bottom:4px;line-height:1.3}
-.step-h-text{font-size:11px;color:var(--c-text2);line-height:1.55}
-@media(max-width:800px){
-  .steps-h-row{grid-template-columns:1fr 1fr;gap:24px 0}
-  .step-h-arrow{display:none}
-}
-@media(max-width:480px){
-  .steps-h-row{grid-template-columns:1fr;gap:20px}
-}
-
-.steps-timeline{
-  display:grid;grid-template-columns:280px 1fr;gap:56px;align-items:start;
-}
-.steps-left{position:sticky;top:88px}
-.steps-heading{
-  font-family:var(--fd);font-size:clamp(22px,2.5vw,32px);
-  font-weight:400;line-height:1.15;color:var(--c-text);
-  margin:10px 0 12px;
-}
-.steps-lead{font-size:13px;color:var(--c-text2);line-height:1.6}
-.steps-list{display:flex;flex-direction:column}
-.step-row{
-  display:grid;grid-template-columns:28px 1fr;gap:16px;
-  padding:13px 0;border-bottom:1px solid var(--c-border);
-  align-items:start;transition:var(--tr);
-}
-.step-row:first-child{border-top:1px solid var(--c-border)}
-.step-row:hover .step-row-title{color:var(--c-accent)}
-.step-row-n{
-  font-family:var(--fd);font-size:13px;color:var(--c-text3);
-  letter-spacing:0.08em;padding-top:3px;
-}
-.step-row-title{
-  font-size:14px;font-weight:700;color:var(--c-text);
-  margin-bottom:2px;transition:color var(--tr);
-}
-.step-row-text{font-size:12px;color:var(--c-text2);line-height:1.5}
-@media(max-width:900px){
-  
-/* ── Горизонтальный процесс лечения ── */
-.steps-block{max-width:960px;margin:0 auto}
-.steps-block-head{text-align:center;margin-bottom:48px}
-.steps-block-tag{display:inline-block}
-.steps-block-title{
-  font-family:var(--fd);font-size:clamp(22px,2.5vw,32px);
-  font-weight:400;line-height:1.15;color:var(--c-text);margin:10px 0 12px;
-}
-.steps-block-lead{font-size:13px;color:var(--c-text2);line-height:1.6}
-.steps-h-row{
-  display:grid;
-  grid-template-columns:repeat(5,1fr) ;
-  align-items:start;
-  gap:0;
-}
-.step-h{
-  display:flex;flex-direction:column;align-items:center;
-  text-align:center;padding:0 12px;position:relative;
-}
-/* Иконка */
-.step-h-ico{
-  width:48px;height:48px;border-radius:50%;
-  border:1px solid var(--c-border);
-  display:flex;align-items:center;justify-content:center;
-  color:var(--c-text3);margin-bottom:16px;
-  background:var(--c-bg);position:relative;z-index:1;
-  transition:var(--tr);
-}
-.step-h-ico svg{width:20px;height:20px}
-.step-h:hover .step-h-ico{border-color:var(--c-accent);color:var(--c-accent)}
-/* Линия + стрелка между шагами */
-.step-h-arrow{
-  position:absolute;top:24px;left:calc(50% + 28px);
-  width:calc(100% - 56px);
-  display:flex;align-items:center;
-  pointer-events:none;
-}
-.step-h-arrow::before{
-  content:'';flex:1;height:1px;background:var(--c-border);
-}
-.step-arrow-svg{
-  width:16px;height:16px;color:var(--c-border);flex-shrink:0;margin-left:-1px;
-}
-.step-h:last-child .step-h-arrow{display:none}
-/* Текст */
-.step-h-num{font-size:10px;color:var(--c-text3);letter-spacing:0.12em;margin-bottom:6px}
-.step-h-title{font-size:13px;font-weight:700;color:var(--c-text);margin-bottom:4px;line-height:1.3}
-.step-h-text{font-size:11px;color:var(--c-text2);line-height:1.55}
-@media(max-width:800px){
-  .steps-h-row{grid-template-columns:1fr 1fr;gap:24px 0}
-  .step-h-arrow{display:none}
-}
-@media(max-width:480px){
-  .steps-h-row{grid-template-columns:1fr;gap:20px}
-}
-
-.steps-timeline{grid-template-columns:1fr;gap:32px}
-  .steps-left{position:static}
-}
-.steps-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;position:relative}
-.steps-grid::before{
-  content:'';position:absolute;top:28px;left:10%;right:10%;
-  height:2px;background:linear-gradient(90deg,transparent,var(--c-accent),transparent);
-}
-.step-item{text-align:center;position:relative;z-index:1}
-.step-num{
-  width:56px;height:56px;border-radius:50%;
-  background:linear-gradient(135deg,var(--c-accent),var(--c-accent2));
-  color:#fff;font-weight:800;font-size:20px;
-  display:flex;align-items:center;justify-content:center;
-  margin:0 auto 12px;box-shadow:0 4px 14px rgba(107,114,128,0.4);
-}
-.step-ico{font-size:24px;margin-bottom:8px}
-.step-tit{font-weight:700;font-size:14px;margin-bottom:4px;color:var(--c-text)}
-.step-txt{font-size:12px;color:var(--c-text2);line-height:1.5}
-/* Кейсы */
-.dark-sec{background:#1a2332}
-[data-theme="dark"] .dark-sec{background:var(--c-bg3)}
-[data-theme="contrast"] .dark-sec{background:#050505}
-.cases-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-.case-card{
-  background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
-  border-radius:var(--r);overflow:hidden;transition:var(--tr);
-}
-[data-theme="dark"] .case-card{background:var(--c-bg2);border-color:var(--c-border)}
-.case-card:hover{border-color:var(--c-accent);transform:translateY(-4px)}
-.case-imgs{display:grid;grid-template-columns:1fr 1fr;gap:2px}
-.case-img{
-  height:140px;
-  background:linear-gradient(135deg,#1e2d3d,#0f1923);
-  display:flex;align-items:center;justify-content:center;
-  position:relative;font-size:36px;
-}
-.case-lbl{
-  position:absolute;bottom:6px;left:6px;
-  background:rgba(0,0,0,0.6);color:#fff;
-  font-size:10px;font-weight:700;
-  padding:2px 7px;border-radius:4px;
-}
-.case-body{padding:16px}
-.case-prob{font-size:10px;color:var(--c-accent);font-weight:800;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px}
-.case-tit{font-family:var(--fd);font-size:18px;font-weight:700;color:#fff;margin-bottom:6px}
-[data-theme="dark"] .case-tit,[data-theme="contrast"] .case-tit{color:var(--c-text)}
-.case-txt{font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6}
-[data-theme="dark"] .case-txt,[data-theme="contrast"] .case-txt{color:var(--c-text3)}
-.case-res{margin-top:8px;font-size:12px;color:#6b7280;font-weight:600}
-/* Врачи */
-.doc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;align-items:stretch}
-.doc-card{
-  background:var(--c-card);border-radius:var(--r);overflow:hidden;
-  box-shadow:0 2px 10px rgba(26,35,50,0.06);transition:var(--tr);cursor:pointer;
-  display:flex;flex-direction:column;height:100%;
-}
-[data-theme="dark"] .doc-card,[data-theme="contrast"] .doc-card{border:1px solid var(--c-border);box-shadow:none}
-.doc-card:hover{transform:translateY(-5px);box-shadow:var(--shadow-lg)}
-.doc-photo{
-  height:280px;
-  background:linear-gradient(135deg,var(--c-accent-bg),var(--c-bg2));
-  display:flex;align-items:center;justify-content:center;
-  font-size:72px;position:relative;overflow:hidden;
-}
-.doc-spec-badge{
-  position:absolute;bottom:10px;left:10px;right:10px;
-  background:var(--c-accent);color:#fff;text-align:center;
-  font-size:11px;font-weight:700;padding:5px;border-radius:var(--r-sm);
-}
-.doc-body{padding:16px;display:flex;flex-direction:column;flex:1}
-.doc-name{font-family:var(--fd);font-size:17px;font-weight:700;margin-bottom:auto;color:var(--c-text)}
-.doc-exp{font-size:12px;color:var(--c-text3);margin-bottom:12px}
-.doc-btn{
-  width:100%;padding:9px;background:var(--c-text);
-  color:var(--c-bg);border-radius:var(--r-sm);
-  font-size:13px;font-weight:700;transition:var(--tr);
-}
-[data-theme="dark"] .doc-btn,[data-theme="contrast"] .doc-btn{background:var(--c-accent);color:#fff}
-.doc-btn:hover{background:var(--c-accent);color:#fff}
-/* FAQ */
-.faq-list{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
-.faq-item{background:var(--c-card);border-radius:var(--r);overflow:hidden;box-shadow:0 1px 6px rgba(26,35,50,0.04)}
-[data-theme="dark"] .faq-item,[data-theme="contrast"] .faq-item{border:1px solid var(--c-border)}
-.faq-q{
-  padding:20px;display:flex;justify-content:space-between;align-items:center;
-  cursor:pointer;font-weight:700;font-size:15px;color:var(--c-text);transition:var(--tr);
-}
-.faq-q:hover{color:var(--c-accent)}
-.faq-arr{font-size:18px;transition:var(--tr);color:var(--c-accent);flex-shrink:0}
-.faq-item.open .faq-arr{transform:rotate(180deg)}
-.faq-a{
-  max-height:0;overflow:hidden;
-  transition:max-height 0.35s ease,padding 0.25s ease;
-  padding:0 20px;color:var(--c-text2);font-size:14px;line-height:1.7;
-}
-.faq-item.open .faq-a{max-height:200px;padding-bottom:20px}
-/* Отзывы */
-.rev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-.rev-card{
-  background:var(--c-card);border-radius:var(--r);padding:24px;
-  box-shadow:0 2px 10px rgba(26,35,50,0.06);transition:var(--tr);
-}
-[data-theme="dark"] .rev-card,[data-theme="contrast"] .rev-card{border:1px solid var(--c-border);box-shadow:none}
-.rev-card:hover{box-shadow:var(--shadow-lg)}
-.rev-stars{color:#fbbf24;font-size:16px;margin-bottom:12px}
-.rev-text{font-size:15px;color:var(--c-text2);line-height:1.85;margin-bottom:16px;font-family:var(--fb);font-weight:400}
-.rev-author{display:flex;align-items:center;gap:10px}
-.rev-ava{
-  width:40px;height:40px;border-radius:50%;
-  background:linear-gradient(135deg,var(--c-accent),var(--c-accent2));
-  display:flex;align-items:center;justify-content:center;
-  color:#fff;font-weight:700;font-size:17px;flex-shrink:0;
-}
-.rev-name{font-weight:700;font-size:14px;color:var(--c-text)}
-.rev-date{font-size:11px;color:var(--c-text3)}
-/* Форма записи */
-.form-sec{background:linear-gradient(135deg,var(--c-accent),var(--c-accent2));padding:80px 20px}
-.form-wrap{max-width:860px;margin:0 auto}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
-.form-left .s-title{color:#fff}
-.form-left .s-sub{color:rgba(255,255,255,0.85);margin:0}
-.form-perks{margin-top:20px;display:flex;flex-direction:column;gap:10px}
-.form-perk{display:flex;align-items:center;gap:10px;color:#fff;font-size:14px;font-weight:600}
-.form-perk-ico{
-  width:26px;height:26px;
-  display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;
-}
-.form-box{
-  background:var(--c-card);border-radius:20px;padding:32px;
-  box-shadow:0 20px 50px rgba(0,0,0,0.18);
-}
-.form-box h3{font-family:var(--fd);font-size:24px;font-weight:700;margin-bottom:20px;color:var(--c-text)}
-.field{margin-bottom:14px}
-.field label{display:block;font-size:12px;font-weight:700;color:var(--c-text2);margin-bottom:5px;letter-spacing:0.02em}
-.field input,.field select,.field textarea{
-  width:100%;padding:12px 14px;
-  border:2px solid var(--c-border);
-  border-radius:var(--r-sm);
-  font-family:var(--fb);font-size:14px;color:var(--c-text);
-  background:var(--c-bg2);transition:var(--tr);
-}
-.field input:focus,.field select,.field textarea:focus{
-  outline:none;border-color:var(--c-accent);background:var(--c-card);
-}
-.field textarea{resize:none;height:70px}
-.form-submit{
-  width:100%;padding:14px;font-size:15px;font-weight:700;
-  background:linear-gradient(135deg,var(--c-accent),var(--c-accent2));
-  color:#fff;border-radius:50px;margin-top:6px;
-  box-shadow:0 6px 20px rgba(107,114,128,0.4);transition:var(--tr);
-}
-.form-submit:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(91,188,176,0.5)}
-.form-disc{font-size:11px;color:var(--c-text3);text-align:center;margin-top:8px}
-.ok-msg{
-  background:var(--c-accent-bg);color:var(--c-accent);
-  padding:12px;border-radius:var(--r-sm);
-  font-weight:700;text-align:center;
-  border:1px solid var(--c-accent);
-  margin-top:10px;display:none;
-}
-.ok-msg.show{display:block;animation:pgIn 0.3s ease}
-/* Акции */
-.promo-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-.promo-card{
-  border-radius:var(--r);padding:36px;
-  position:relative;overflow:hidden;transition:var(--tr);
-  display:flex;flex-direction:column;
-}
-.promo-card:hover{transform:translateY(-4px)}
 .pc1{background:linear-gradient(135deg,var(--c-accent),var(--c-accent2));color:#fff}
 .pc2{background:linear-gradient(135deg,#1a2332,#2d3748);color:#fff}
 .promo-badge{
@@ -1424,18 +397,12 @@ body.fs-xl{zoom:1.3 !important}
 /* ============================================================
    АДАПТИВНОСТЬ (mobile-first)
    ============================================================ */
-/* Планшет ≤ 1024px */
+/* ── Устаревшие media queries удалены ──────────────────────────
+   Вся адаптивность теперь в css/responsive.css (mobile-first).
+   Ниже только страничные компоненты, не вынесенные в v1 рефакторинга.
+─────────────────────────────────────────────────────────────── */
+/* Планшет: адаптив страниц, не охваченных responsive.css */
 @media(max-width:1024px){
-  .nav{display:none}
-  .burger{display:flex}
-  .mob-cta{display:flex}
-  .page{padding-bottom:74px}
-  .hero-inner{grid-template-columns:1fr;align-items:start;gap:36px;padding:40px 16px}
-  .hero-visual{display:none}
-  .adv-grid{grid-template-columns:repeat(2,1fr)}
-  .srv-grid{grid-template-columns:repeat(2,1fr)}
-  .doc-grid{grid-template-columns:repeat(2,1fr)}
-  .cases-grid{grid-template-columns:repeat(2,1fr)}
   .doc-page-grid{grid-template-columns:repeat(2,1fr)}
   .form-grid{grid-template-columns:1fr}
   .about-2col{grid-template-columns:1fr}
@@ -1444,48 +411,22 @@ body.fs-xl{zoom:1.3 !important}
   .srv-sidebar{position:static}
   .steps-grid{grid-template-columns:repeat(3,1fr)}
   .steps-grid::before{display:none}
-  .stats-inner{grid-template-columns:repeat(2,1fr)}
-  .stat-item:nth-child(1)::after,.stat-item:nth-child(3)::after{display:none}
-  .stat-item:nth-child(2){border-right:none}
-  .stat-item{padding:24px 16px}
-  .footer-grid{grid-template-columns:1fr 1fr;gap:28px}
   .ba-grid{grid-template-columns:1fr}
   .cases-pg-grid{grid-template-columns:1fr}
   .blog-grid{grid-template-columns:repeat(2,1fr)}
   .srv-cats{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:28px}
 }
-/* Мобильный ≤ 640px */
 @media(max-width:640px){
-  .hdr{height:60px;padding:0 12px}
-  .page{padding-top:60px;padding-bottom:74px}
-  .mob-nav{top:60px}
-  .a11y-panel{bottom:76px;right:8px;width:calc(100vw - 16px)}
-  .fab-bar{bottom:76px;right:10px}
-  .section{padding:48px 16px}
-  .s-title{font-size:clamp(26px,7vw,38px)}
-
-  .hero-title{font-size:clamp(32px,9vw,50px)}
-  .hero-btns{flex-direction:column}
-  .btn-big,.btn-call{width:100%;justify-content:center}
-  .phone-num{font-size:18px}
-  .stat-count{font-size:40px}
-  .adv-grid,.srv-grid,.doc-grid,.doc-page-grid,.cases-grid,
-  .rev-grid,.promo-grid,.ba-grid,.cases-pg-grid,.blog-grid{grid-template-columns:1fr}
-  .steps-grid{grid-template-columns:1fr 1fr;gap:12px}
-  .footer-grid{grid-template-columns:1fr;gap:24px}
-  .footer-bottom{flex-direction:column;gap:8px}
-  .footer{padding:40px 16px 80px}
   .form-box{padding:20px 16px}
-  .s-head{margin-bottom:32px}
   .cnt-btns{flex-direction:column}
   .hours-grid{grid-template-columns:1fr}
   .art-wrap{padding:0 16px}
-}
-/* Очень маленькие ≤ 360px */
-@media(max-width:360px){
-  .logo-name{font-size:17px}
-  .stat-count{font-size:32px}
-  .btn-p{padding:8px 14px;font-size:12px}
+  .blog-grid,.doc-page-grid,.cases-grid,.cases-pg-grid,.ba-grid{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr;gap:24px}
+  .footer-bottom{flex-direction:column;gap:8px}
+  .footer{padding:40px 16px 32px}
+  .steps-grid{grid-template-columns:1fr 1fr;gap:12px}
 }
 
 /* ============================================================
@@ -2139,7 +1080,7 @@ body.fs-xl{zoom:1.3 !important}
   display:none;
   min-height:100vh;
   background:var(--c-bg);
-  padding-top:68px;
+  padding-top:var(--header-h);
 }
 .admin-page.show{
   display:block;
@@ -2676,7 +1617,7 @@ input[type="file"]{
   display:none;
   min-height:100vh;
   background:var(--c-bg);
-  padding-top:68px;
+  padding-top:var(--header-h);
 }
 .admin-page.show{
   display:block;
@@ -3299,47 +2240,61 @@ input[type="file"]{
 #admin-subpage .admin-field textarea:focus,
 #admin-subpage .admin-field select:focus{outline:none;border-color:var(--c-text)}
 #admin-subpage .admin-field{margin-bottom:18px}
-
 </style>
 <!-- ========== HEADER ========== -->
 <header class="header" id="header">
   <div class="hdr">
-    <div class="logo" onclick="if(typeof showPage==='function')showPage('home')">
-      <img src="logo.png" alt="Стоматологическая клиника в вашем городе" style="height:60px;width:auto;flex-shrink:0;filter:var(--logo-filter,none)"/>
+
+    <!-- Логотип -->
+    <div class="logo" onclick="if(typeof showPage==='function') showPage('home')" aria-label="На главную">
+      <img src="logo.png" alt="Стоматологическая клиника" style="filter:var(--logo-filter,none)"/>
     </div>
-    <nav class="nav" role="navigation">
-      <span class="nav-link" data-section="services" onclick="showPage('services')">Услуги</span>
-      <span class="nav-link" data-section="doctors" onclick="showPage('doctors')">Врачи</span>
+
+    <!-- ЕДИНАЯ НАВИГАЦИЯ — desktop. На мобильном скрыта через base.css,
+         открывается в responsive.css от min-width:1025px -->
+    <nav class="nav" id="desktopNav" role="navigation" aria-label="Основная навигация">
+      <span class="nav-link" data-section="home"         onclick="showPage('home')">Главная</span>
+      <span class="nav-link" data-section="services"     onclick="showPage('services')">Услуги</span>
+      <span class="nav-link" data-section="doctors"      onclick="showPage('doctors')">Врачи</span>
       <span class="nav-link" data-section="before-after" onclick="showPage('before-after')">До/После</span>
-      <span class="nav-link" data-section="reviews" onclick="showPage('reviews')">Отзывы</span>
-      <span class="nav-link" data-section="blog" onclick="showPage('blog')">Блог</span>
-      <span class="nav-link" data-section="promos" onclick="showPage('promos')">Акции</span>
-      <span class="nav-link" data-section="about" onclick="showPage('about')">О клинике</span>
-      <span class="nav-link" data-section="contacts" onclick="showPage('contacts')">Контакты</span>
+      <span class="nav-link" data-section="reviews"      onclick="showPage('reviews')">Отзывы</span>
+      <span class="nav-link" data-section="blog"         onclick="showPage('blog')">Блог</span>
+      <span class="nav-link" data-section="promos"       onclick="showPage('promos')">Акции</span>
+      <span class="nav-link" data-section="about"        onclick="showPage('about')">О клинике</span>
+      <span class="nav-link" data-section="contacts"     onclick="showPage('contacts')">Контакты</span>
     </nav>
+
     <div class="hdr-right">
-      <a href="tel:+74942470733" class="hdr-phone">+7 (800) 555-35-35<small>Без выходных</small></a><button class="btn-p" onclick="openLeadModal('lead')">Оставить заявку</button>
-      <button class="burger" id="burger" onclick="toggleMobile()" aria-label="Меню">
+      <!-- Телефон: скрыт на mobile, виден от 769px (responsive.css) -->
+      <a href="tel:+78005553535" class="hdr-phone">+7 (800) 555-35-35<small>Без выходных</small></a>
+      <!-- CTA: скрыт на mobile/tablet, виден от 1025px (responsive.css) -->
+      <button class="btn-p hdr-cta-btn" onclick="openLeadModal('lead')">Оставить заявку</button>
+      <!-- Burger: скрыт на desktop от 1025px (responsive.css) -->
+      <button class="burger" id="burger" onclick="toggleMobile()" aria-label="Открыть меню" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
     </div>
+
   </div>
 </header>
 
-<!-- ========== МОБИЛЬНОЕ МЕНЮ ========== -->
-<nav class="mob-nav" id="mobNav">
-  <span class="mob-link" onclick="showPage('home');closeMobile()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Главная</span>
-  <span class="mob-link" onclick="showPage('services');closeMobile()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Услуги</span>
-  <span class="mob-link" onclick="showPage('doctors');closeMobile()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M12 11v6"/><path d="M9 14h6"/></svg> Врачи</span>
-  <span class="mob-link" onclick="showPage('before-after');closeMobile()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> До / После</span>
-  <span class="mob-link" onclick="showPage('reviews');closeMobile()">⭐ Отзывы</span>
-  <span class="mob-link" onclick="showPage('blog');closeMobile()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg> Блог</span>
-  <span class="mob-link" onclick="showPage('promos');closeMobile()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg> Акции</span>
-  <span class="mob-link" onclick="showPage('about');closeMobile()">ℹ️ О клинике</span>
-  <span class="mob-link" onclick="showPage('contacts');closeMobile()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Контакты</span>
+<!-- ========== МОБИЛЬНОЕ МЕНЮ ==========
+     Те же пункты что и в #desktopNav.
+     Показывается через CSS transform (без display:none reflow).
+     Управляется toggleMobile() / closeMobile() -->
+<nav class="mob-nav" id="mobNav" aria-label="Мобильная навигация" aria-hidden="true">
+  <span class="mob-link" onclick="showPage('home');closeMobile()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Главная</span>
+  <span class="mob-link" onclick="showPage('services');closeMobile()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Услуги</span>
+  <span class="mob-link" onclick="showPage('doctors');closeMobile()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Врачи</span>
+  <span class="mob-link" onclick="showPage('before-after');closeMobile()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> До / После</span>
+  <span class="mob-link" onclick="showPage('reviews');closeMobile()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> Отзывы</span>
+  <span class="mob-link" onclick="showPage('blog');closeMobile()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Блог</span>
+  <span class="mob-link" onclick="showPage('promos');closeMobile()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg> Акции</span>
+  <span class="mob-link" onclick="showPage('about');closeMobile()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> О клинике</span>
+  <span class="mob-link" onclick="showPage('contacts');closeMobile()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Контакты</span>
   <div class="mob-actions">
-    <a href="tel:+74942470733" class="btn-o" style="display:flex;align-items:center;justify-content:center;gap:8px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.08 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3 1.18h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.09 8.91A16 16 0 0 0 15 16.91l1.09-1.26a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> +7 (800) 555-35-35</a>
-    <button class="btn-p" style="min-height:46px" onclick="openLeadModal('lead');closeMobile()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg> Оставить заявку</button>
+    <a href="tel:+78005553535" class="btn-o" style="display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.08 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3 1.18h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.09 8.91A16 16 0 0 0 15 16.91l1.09-1.26a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> +7 (800) 555-35-35</a>
+    <button class="btn-p" style="min-height:48px;display:flex;align-items:center;justify-content:center;gap:8px" onclick="openLeadModal('lead');closeMobile()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg> Оставить заявку</button>
   </div>
 </nav>
 
@@ -3370,10 +2325,14 @@ input[type="file"]{
   <button class="a11y-reset" onclick="resetA11y()">↺ Сбросить</button>
 </div>
 
-<!-- ========== ЛИПКАЯ КНОПКА ЗАПИСИ (только мобайл) ========== -->
-<div class="mob-cta">
-  <a href="tel:+74942470733" class="btn-o"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.08 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3 1.18h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.09 8.91A16 16 0 0 0 15 16.91l1.09-1.26a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> +7 (800) 555-35-35</a>
-  <button class="btn-p" onclick="openLeadModal('lead')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg> Оставить заявку</button>
+<!-- ========== ЛИПКАЯ КНОПКА ЗАПИСИ (только мобайл) ==========
+     Показывается/скрывается через CSS (responsive.css):
+     - mobile: display:flex (base.css)
+     - 769px+:  display:none (responsive.css)
+     JS-автоскрытие при скролле вниз — через класс .hidden -->
+<div class="mob-cta" id="mobCta" role="navigation" aria-label="Быстрые действия">
+  <a href="tel:+78005553535" class="btn-o" aria-label="Позвонить"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.08 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3 1.18h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.09 8.91A16 16 0 0 0 15 16.91l1.09-1.26a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> Позвонить</a>
+  <button class="btn-p" onclick="openLeadModal('lead')" aria-label="Оставить заявку"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg> Записаться</button>
 </div>
 
 <!-- ========================================================== -->
@@ -3381,55 +2340,84 @@ input[type="file"]{
 <!-- ========================================================== -->
 <div class="page on" id="page-home">
 
-  <!-- Герой -->
-  <section class="hero">
+  <!-- ========== ГЕРОЙ — Mobile-First ==========
+       Mobile:  колонка (фото сверху → текст снизу)
+       Desktop: grid 2 колонки (текст слева, фото справа)
+       
+       .hero-visual получает order:-1 в base.css → фото идёт ПЕРВЫМ на мобильном.
+       На desktop order сбрасывается → обычный grid-порядок.
+       .h-float — floating badges, скрыты на mobile, видны от 1025px.
+  ========== -->
+  <section class="hero" id="hero">
     <div class="hero-inner">
 
-      <!-- Левая колонка -->
-      <div>
-        <!-- Убрано: Ваш город · с 2014 года -->
+      <!-- ТЕКСТОВАЯ КОЛОНКА -->
+      <div class="hero-text">
+
+        <!-- Trust-pills — видны сразу, без скролла -->
+        <div class="hero-trust-strip">
+          <div class="trust-pill">⭐ <strong>4.9</strong> — 127 отзывов</div>
+          <div class="trust-pill">🛡 <strong>Гарантия 12 мес.</strong></div>
+          <div class="trust-pill">✅ Без боли</div>
+        </div>
+
+        <!-- Eyebrow (скрыт на мобильном, виден от 1025px) -->
+        <div class="hero-eyebrow">Стоматологическая клиника</div>
+
         <h1 class="hero-title">Ваша улыбка —<br/>наша <em>забота</em></h1>
         <p class="hero-desc">Современная стоматология без страха и боли. Принимаем всю семью — взрослых и детей. Честные цены, гарантия на каждую работу.</p>
+
         <div class="hero-cta">
-          <button class="btn-hero-main" onclick="openLeadModal('lead')">Оставить заявку</button>
+          <div class="hero-cta-row">
+            <button class="btn-hero-main" onclick="openLeadModal('lead')">Оставить заявку</button>
+            <!-- Кнопка звонка — на mobile, скрыта от 1025px (звонок уже в хедере) -->
+            <a href="tel:+78005553535" class="hero-call-link">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.08 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3 1.18h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.09 8.91A16 16 0 0 0 15 16.91l1.09-1.26a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              Позвонить
+            </a>
+          </div>
           <div class="hero-free-tag">
-            <span style="display:inline-flex;align-items:center;gap:6px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg> Первичный осмотр — бесплатно</span>
+            <span>🎁 Первичный осмотр — бесплатно</span>
           </div>
         </div>
+
         <div class="hero-trust">
-          <div class="hero-trust-item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> <strong>Без боли</strong></div>
-          <div class="hero-trust-item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> <strong>Гарантия 12 мес.</strong></div>
-          <div class="hero-trust-item"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> <strong>Для всей семьи</strong></div>
+          <div class="hero-trust-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><strong>Без боли</strong></div>
+          <div class="hero-trust-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><strong>Гарантия 12 мес.</strong></div>
+          <div class="hero-trust-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><strong>Для всей семьи</strong></div>
         </div>
+
       </div>
 
-      <!-- Правая колонка — фото -->
+      <!-- ВИЗУАЛЬНАЯ КОЛОНКА (на мобильном — первой через CSS order:-1) -->
       <div class="hero-visual">
         <div class="hero-card">
           <div class="hero-card-photo">
-            <!-- ★ ЗАМЕНИТЕ src на URL фотографии вашей клиники ★ -->
             <img
               src="Стоматология.Главная1.png"
               alt="Стоматологическая клиника в вашем городе"
               loading="eager"
-              onerror="this.parentElement.innerHTML='<div style=&quot;display:flex;align-items:center;justify-content:center;height:100%;color:#6b7280&quot;><svg width=&quot;64&quot; height=&quot;64&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;1.5&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot; style=&quot;opacity:0.4&quot;><rect x=&quot;4&quot; y=&quot;2&quot; width=&quot;16&quot; height=&quot;20&quot; rx=&quot;2&quot;/><path d=&quot;M9 22V12h6v10&quot;/><line x1=&quot;12&quot; y1=&quot;7&quot; x2=&quot;12&quot; y2=&quot;11&quot;/><line x1=&quot;10&quot; y1=&quot;9&quot; x2=&quot;14&quot; y2=&quot;9&quot;/></svg></div>'"
+              width="540"
+              height="600"
+              onerror="this.parentElement.innerHTML='<div style=&quot;display:flex;align-items:center;justify-content:center;height:100%;font-size:64px&quot;>🦷</div>'"
             />
             <div class="hero-card-photo-overlay"></div>
           </div>
           <div class="hero-card-over">
-            <div class="hero-card-logo"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;"><path d="M12 2C8.5 2 6 5 6 8c0 2 .8 3.5 1.6 5L9 20a1 1 0 0 0 2 0v-3.5a1 1 0 0 1 2 0V20a1 1 0 0 0 2 0l1.4-7C17.2 11.5 18 10 18 8c0-3-2.5-6-6-6z"/></svg></div>
+            <div class="hero-card-logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.5 2 6 5 6 8c0 2 .8 3.5 1.6 5L9 20a1 1 0 0 0 2 0v-3.5a1 1 0 0 1 2 0V20a1 1 0 0 0 2 0l1.4-7C17.2 11.5 18 10 18 8c0-3-2.5-6-6-6z"/></svg></div>
             <div>
               <div class="hero-card-title">Стоматологическая клиника в вашем городе</div>
               <div class="hero-card-sub">Центр стоматологии · В вашем городе</div>
             </div>
           </div>
         </div>
+        <!-- Floating badges: скрыты в base.css, видны от 1025px в responsive.css -->
         <div class="h-float hf1">
           <div class="hf-ico">⭐</div>
           <div><div class="hf-t">Рейтинг 4.9</div><div class="hf-s">127 отзывов</div></div>
         </div>
         <div class="h-float hf2">
-          <div class="hf-ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <div class="hf-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
           <div><div class="hf-t">Гарантия 12 мес.</div><div class="hf-s">На всё лечение</div></div>
         </div>
       </div>
@@ -5750,19 +4738,48 @@ function showPage(key) {
 }
 
 // ── Мобильное меню ───────────────────────────────────────────────
+// Используем transform вместо display:none — нет layout reflow, плавная анимация
 let mobOpen = false;
 function toggleMobile() {
   mobOpen = !mobOpen;
-  document.getElementById('mobNav').classList.toggle('open', mobOpen);
-  document.getElementById('burger').classList.toggle('open', mobOpen);
+  const nav    = document.getElementById('mobNav');
+  const burger = document.getElementById('burger');
+  nav.classList.toggle('open', mobOpen);
+  burger.classList.toggle('open', mobOpen);
+  burger.setAttribute('aria-expanded', mobOpen ? 'true' : 'false');
+  nav.setAttribute('aria-hidden', mobOpen ? 'false' : 'true');
   document.body.style.overflow = mobOpen ? 'hidden' : '';
 }
 function closeMobile() {
   mobOpen = false;
-  document.getElementById('mobNav').classList.remove('open');
-  document.getElementById('burger').classList.remove('open');
+  const nav    = document.getElementById('mobNav');
+  const burger = document.getElementById('burger');
+  if (nav)    { nav.classList.remove('open'); nav.setAttribute('aria-hidden', 'true'); }
+  if (burger) { burger.classList.remove('open'); burger.setAttribute('aria-expanded', 'false'); }
   document.body.style.overflow = '';
 }
+
+// ── Автоскрытие mob-cta при скролле вниз ─────────────────────────
+// Панель скрывается при чтении, появляется при скролле вверх
+(function() {
+  const mobCta = document.getElementById('mobCta');
+  if (!mobCta) return;
+  let lastY = 0, ticking = false;
+  window.addEventListener('scroll', function() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function() {
+      const y = window.scrollY;
+      if (y > lastY && y > 120) {
+        mobCta.classList.add('hidden');
+      } else {
+        mobCta.classList.remove('hidden');
+      }
+      lastY = y;
+      ticking = false;
+    });
+  }, { passive: true });
+})();
 
 // ── Скролл хедера ────────────────────────────────────────────────
 window.addEventListener('scroll', () => {
