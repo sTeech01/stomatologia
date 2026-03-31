@@ -5231,141 +5231,87 @@ document.addEventListener('keydown', e => {
 });
 
 // Рандомизация врачей на главной
-// ── Синхронизация врачей: главная ← страница врачей ─────────────
+// ── Карточки врачей на главной — из объекта DOCTORS ─────────────
 //
-// ЛОГИКА:
-// 1. RenderManager из app-core.js рендерит врачей в #doctors-page-grid
-//    (это происходит лениво — только при переходе на вкладку "Врачи")
-// 2. Мы вешаем MutationObserver на этот контейнер.
-//    Как только карточки появились — копируем их на главную в случайном
-//    порядке, показывая не более 4 штук.
-// 3. При каждом переходе на главную (showPage('home')) обновляем порядок.
-// 4. Если врачи ещё не загружены при первом открытии главной —
-//    принудительно вызываем RenderManager.renderDoctors(), чтобы
-//    запустить загрузку из Supabase.
+// Рендерим напрямую из DOCTORS (index.html), а не клонируем из
+// страницы врачей. Это гарантирует что openDocModal(key) всегда
+// сработает, потому что DOCTORS и openDocModal живут в одном файле.
+// Случайный порядок — при каждом рендере.
 
-function syncHomeDoctors() {
-  const homeGrid    = document.getElementById('home-doctors-grid');
-  const sourceGrid  = document.getElementById('doctors-page-grid');
-  if (!homeGrid || !sourceGrid) return;
+function renderHomeDoctors() {
+  var homeGrid = document.getElementById('home-doctors-grid');
+  if (!homeGrid) return;
+  if (typeof DOCTORS === 'undefined') return;
 
-  const sourceCards = Array.from(sourceGrid.children);
-  if (sourceCards.length === 0) return;
-
-  // Случайная перестановка (Fisher-Yates)
-  const shuffled = [...sourceCards];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  // Собираем ключи и перемешиваем (Fisher-Yates)
+  var keys = Object.keys(DOCTORS);
+  for (var i = keys.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = keys[i]; keys[i] = keys[j]; keys[j] = tmp;
   }
 
-  // Берём максимум 4, клонируем (не перемещаем — страница врачей должна остаться)
+  // Берём первые 4
   homeGrid.innerHTML = '';
-  shuffled.slice(0, 4).forEach(function(card) {
-    var clone = card.cloneNode(true);
+  keys.slice(0, 4).forEach(function(key) {
+    var d = DOCTORS[key];
+    if (!d) return;
 
-    // ВАЖНО: cloneNode копирует HTML-атрибут onclick, но НЕ копирует
-    // addEventListener-обработчики (RenderManager использует именно их).
-    // Поэтому читаем ключ врача из onclick-атрибута карточки или её дочерних
-    // элементов и сами вешаем обработчик на клон.
-    var docKey = null;
+    var photo = d.photo
+      ? '<img src="' + d.photo + '" alt="' + d.name + '" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block"/>'
+      : '';
+    var exp = d.exp || '';
+    // Вычленяем подзаголовок (специализация + стаж)
+    var expLine = d.spec ? (d.spec + (exp ? ' · ' + exp.replace('Стаж ', '') : '')) : exp;
 
-    // 1. Пробуем onclick самой карточки: openDocModal('korovkina')
-    var cardOnclick = clone.getAttribute('onclick') || '';
-    var m = cardOnclick.match(/openDocModal\(['"]([^'"]+)['"]\)/);
-    if (m) docKey = m[1];
+    var card = document.createElement('div');
+    card.className = 'doc-card';
+    card.innerHTML =
+      '<div class="doc-photo">' +
+        photo +
+        '<div class="doc-spec-badge">' + (d.spec || '') + '</div>' +
+      '</div>' +
+      '<div class="doc-body">' +
+        '<div class="doc-name">' + d.name + '</div>' +
+        '<div class="doc-exp">' + expLine + '</div>' +
+        '<button class="doc-btn">Оставить заявку</button>' +
+      '</div>';
 
-    // 2. Пробуем data-атрибуты (разные версии RenderManager)
-    if (!docKey) docKey = clone.dataset.key || clone.dataset.doc || clone.dataset.docKey || null;
-
-    // 3. Пробуем найти onclick на дочерних элементах
-    if (!docKey) {
-      var childWithOnclick = clone.querySelector('[onclick*="openDocModal"]');
-      if (childWithOnclick) {
-        var cm = (childWithOnclick.getAttribute('onclick') || '').match(/openDocModal\(['"]([^'"]+)['"]\)/);
-        if (cm) docKey = cm[1];
-      }
-    }
-
-    if (docKey) {
-      // Удаляем старый onclick-атрибут с карточки (если есть), вешаем свежий listener
-      clone.removeAttribute('onclick');
-      clone.addEventListener('click', function(e) {
-        // Клик по кнопке "Оставить заявку" — не открываем модал врача
+    // Клик по карточке — открываем модал врача
+    card.addEventListener('click', (function(k) {
+      return function(e) {
         if (e.target.closest('.doc-btn')) return;
-        openDocModal(docKey);
-      });
+        openDocModal(k);
+      };
+    })(key));
 
-      // Кнопка "Оставить заявку" внутри клона — её onclick тоже мог потеряться
-      var btn = clone.querySelector('.doc-btn');
-      if (btn) {
-        btn.removeAttribute('onclick');
-        btn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          openLeadModal('lead');
-        });
-      }
-    }
+    // Клик по кнопке — форма записи
+    card.querySelector('.doc-btn').addEventListener('click', function(e) {
+      e.stopPropagation();
+      openLeadModal('lead');
+    });
 
-    homeGrid.appendChild(clone);
+    homeGrid.appendChild(card);
   });
 }
 
-// Наблюдаем за #doctors-page-grid: как только появятся карточки — синхронизируем
-(function() {
-  const sourceGrid = document.getElementById('doctors-page-grid');
-  if (!sourceGrid) return;
-
-  const observer = new MutationObserver(function(mutations) {
-    const hasCards = mutations.some(m => m.addedNodes.length > 0);
-    if (hasCards) syncHomeDoctors();
-  });
-
-  observer.observe(sourceGrid, { childList: true });
-})();
-
-// Хук на showPage: при переходе на главную — обновляем порядок или запускаем загрузку
-const _origShowPage = showPage;
-showPage = function(key) {
-  _origShowPage(key);
-  if (key === 'home') {
-    const sourceGrid = document.getElementById('doctors-page-grid');
-    if (sourceGrid && sourceGrid.children.length > 0) {
-      // Данные уже есть — просто перемешиваем
-      syncHomeDoctors();
-    } else {
-      // Данных нет — принудительно загружаем через RenderManager
-      if (typeof RenderManager !== 'undefined' && RenderManager.renderDoctors) {
-        RenderManager.renderDoctors();
-        // syncHomeDoctors вызовет MutationObserver автоматически
-      }
-    }
-  }
-};
-
-// При первой загрузке страницы — пробуем загрузить врачей
-// (после того как app-core.js инициализируется)
-function initHomeDoctors() {
-  const sourceGrid = document.getElementById('doctors-page-grid');
-  if (sourceGrid && sourceGrid.children.length > 0) {
-    syncHomeDoctors();
-    return;
-  }
-  if (typeof RenderManager !== 'undefined' && RenderManager.renderDoctors) {
-    RenderManager.renderDoctors();
-    // MutationObserver сработает когда данные придут из Supabase
-  }
+// Перезаписываем showPage: при переходе на главную перемешиваем порядок
+var _origShowPage = typeof _origShowPage !== 'undefined' ? _origShowPage : null;
+if (!_origShowPage) {
+  _origShowPage = showPage;
+  showPage = function(key) {
+    _origShowPage(key);
+    if (key === 'home') renderHomeDoctors();
+  };
 }
 
-// Запускаем с небольшой задержкой — даём app-core.js время инициализироваться
+// Первый рендер — после загрузки DOM
 document.addEventListener('DOMContentLoaded', function() {
-  setTimeout(initHomeDoctors, 500);
+  renderHomeDoctors();
 });
 
-// Старая функция оставлена для совместимости (больше не используется)
-function shuffleHomeDoctors() {
-  syncHomeDoctors();
-}
+// Совместимость со старым кодом
+function shuffleHomeDoctors() { renderHomeDoctors(); }
+function syncHomeDoctors()    { renderHomeDoctors(); }
 
 
 // ── ИНИЦИАЛИЗАЦИЯ ТЕМЫ И ШРИФТА ──────────────────────────────────
