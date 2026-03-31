@@ -5187,7 +5187,11 @@ const DOCTORS = {
 };
 
 function openDocModal(key) {
-  const d = DOCTORS[key];
+  // Ищем врача: SiteState (Supabase/localStorage) → статический объект DOCTORS
+  const _doctors = (typeof SiteState !== 'undefined' && SiteState.get('doctors') && Object.keys(SiteState.get('doctors')).length)
+    ? SiteState.get('doctors')
+    : (typeof DOCTORS !== 'undefined' ? DOCTORS : {});
+  const d = _doctors[key];
   if (!d) return;
   // Фото врача
   const dmPhoto = document.getElementById('dm-photo');
@@ -5276,7 +5280,8 @@ function syncHomeDoctors() {
     if (m) docKey = m[1];
 
     // 2. Пробуем data-атрибуты (разные версии RenderManager)
-    if (!docKey) docKey = clone.dataset.key || clone.dataset.doc || clone.dataset.docKey || null;
+    // data-doc-id — актуальный атрибут из RenderManager._card()
+    if (!docKey) docKey = clone.dataset.key || clone.dataset.doc || clone.dataset.docKey || clone.dataset.docId || null;
 
     // 3. Пробуем найти onclick на дочерних элементах
     if (!docKey) {
