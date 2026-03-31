@@ -5261,8 +5261,53 @@ function syncHomeDoctors() {
 
   // Берём максимум 4, клонируем (не перемещаем — страница врачей должна остаться)
   homeGrid.innerHTML = '';
-  shuffled.slice(0, 4).forEach(card => {
-    homeGrid.appendChild(card.cloneNode(true));
+  shuffled.slice(0, 4).forEach(function(card) {
+    var clone = card.cloneNode(true);
+
+    // ВАЖНО: cloneNode копирует HTML-атрибут onclick, но НЕ копирует
+    // addEventListener-обработчики (RenderManager использует именно их).
+    // Поэтому читаем ключ врача из onclick-атрибута карточки или её дочерних
+    // элементов и сами вешаем обработчик на клон.
+    var docKey = null;
+
+    // 1. Пробуем onclick самой карточки: openDocModal('korovkina')
+    var cardOnclick = clone.getAttribute('onclick') || '';
+    var m = cardOnclick.match(/openDocModal\(['"]([^'"]+)['"]\)/);
+    if (m) docKey = m[1];
+
+    // 2. Пробуем data-атрибуты (разные версии RenderManager)
+    if (!docKey) docKey = clone.dataset.key || clone.dataset.doc || clone.dataset.docKey || null;
+
+    // 3. Пробуем найти onclick на дочерних элементах
+    if (!docKey) {
+      var childWithOnclick = clone.querySelector('[onclick*="openDocModal"]');
+      if (childWithOnclick) {
+        var cm = (childWithOnclick.getAttribute('onclick') || '').match(/openDocModal\(['"]([^'"]+)['"]\)/);
+        if (cm) docKey = cm[1];
+      }
+    }
+
+    if (docKey) {
+      // Удаляем старый onclick-атрибут с карточки (если есть), вешаем свежий listener
+      clone.removeAttribute('onclick');
+      clone.addEventListener('click', function(e) {
+        // Клик по кнопке "Оставить заявку" — не открываем модал врача
+        if (e.target.closest('.doc-btn')) return;
+        openDocModal(docKey);
+      });
+
+      // Кнопка "Оставить заявку" внутри клона — её onclick тоже мог потеряться
+      var btn = clone.querySelector('.doc-btn');
+      if (btn) {
+        btn.removeAttribute('onclick');
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          openLeadModal('lead');
+        });
+      }
+    }
+
+    homeGrid.appendChild(clone);
   });
 }
 
