@@ -155,14 +155,8 @@ const RenderManager = {
     const html  = Object.keys(doctors).length ? Object.entries(doctors).map(([id,doc])=>_card(id,doc)).join('') : empty;
     const pageGrid = document.getElementById('doctors-page-grid');
     if (pageGrid) pageGrid.innerHTML = html;
-    const homeGrid = document.getElementById('home-doc-grid');
-    if (homeGrid) {
-      homeGrid.innerHTML = html;
-      if (!homeGrid._docClickBound) {
-        homeGrid._docClickBound = true;
-        homeGrid.addEventListener('click', e => { const card=e.target.closest('[data-doc-id]'); if(card) openDocModal(card.dataset.docId); });
-      }
-    }
+    // Главная (home-doctors-grid) обслуживается syncHomeDoctors() в index.html —
+    // там сохраняется случайный порядок. Не пишем сюда напрямую.
     if (pageGrid && !pageGrid._docClickBound) {
       pageGrid._docClickBound = true;
       pageGrid.addEventListener('click', e => { const card=e.target.closest('[data-doc-id]'); if(card) openDocModal(card.dataset.docId); });
