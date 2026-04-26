@@ -74,35 +74,34 @@ const Utils = {
 // ── 2. ДАННЫЕ ПО УМОЛЧАНИЮ (без readTime) ───────────────────────
 const DEFAULT_DATA = {
   reviews: {
-    rev_001: { name:'Анна Соколова',   text:'Наконец-то нашла стоматолога, которого не боюсь. Меджидова Анжела Вагифовна — золотые руки. Пломба стоит уже год, всё отлично.', rating:5, date:'Март 2025' },
-    rev_002: { name:'Михаил Петров',   text:'Поставили брекеты 8 месяцев назад. Коровкина очень внимательный врач, каждый приём всё объясняет. Доволен на 100%!', rating:5, date:'Январь 2025' },
-    rev_003: { name:'Елена Иванова',   text:'Удаляли зуб мудрости — думала будет ужас. Ничего не почувствовала! Симонян — профессионал высшего уровня.', rating:5, date:'Февраль 2025' },
-    rev_004: { name:'Ольга Кузнецова', text:'Сделали полный осмотр, составили план лечения. Цены прозрачные. Рекомендую.', rating:4, date:'Декабрь 2024' },
-    rev_005: { name:'Наталья Волкова', text:'Привела 5-летнего сына. Якимчук Юлия Анатольевна нашла подход сразу — ребёнок не плакал!', rating:5, date:'Ноябрь 2024' },
-    rev_006: { name:'Сергей Николаев', text:'Поставили имплант. Симонян объяснила всё до мелочей. Качество на высоте!', rating:5, date:'Октябрь 2024' }
+    rev_001: { name:'Ульяна Ульяна', text:'Хочу выразить огромную благодарность клинике и лично Наталье Владимировне за высочайший профессионализм, внимательность и чуткость. Лечение проходило абсолютно безболезненно и комфортно. Весь персонал — от администратора до ассистентов — очень приветливый и заботливый. Особо отмечу, что врач подробно всё объяснила и ответила на все вопросы. Чувствовала себя в надёжных руках. Всей семьёй только к вам!', rating:5, date:'Январь 2026' },
+    rev_002: { name:'Александр Шарамеев', text:'Очень хорошая стоматология, отличные специалисты, качественное оборудование и такое же оказание услуг. Очень рад, что пользуюсь данной стоматологией. Рекомендую всем.', rating:5, date:'Март 2025' },
+    rev_003: { name:'Антон Путилин', text:'Хочу поблагодарить Алину Сергеевну за профессиональную чистку зубов! До этого всегда боялся, что будет больно или неприятно, но здесь всё прошло отлично. Врач работает очень аккуратно и внимательно. Результатом остался очень доволен.', rating:5, date:'Апрель 2026' }
   },
   services: {
-    svc_001: { name:'Лечение кариеса',         category:'Терапия',    price:'от 2 500 ₽', description:'Безболезненное лечение кариеса любой стадии. Современные световые пломбы.', icon:'🦷' },
-    svc_002: { name:'Профессиональная чистка',  category:'Гигиена',    price:'от 3 500 ₽', description:'Ультразвуковое снятие камня, Air Flow, полировка и фторирование.', icon:'✨' },
-    svc_003: { name:'Установка брекетов',        category:'Ортодонтия', price:'от 55 000 ₽', description:'Металлические, керамические, сапфировые брекеты. Бесплатная консультация.', icon:'😁' },
-    svc_004: { name:'Дентальная имплантация',   category:'Хирургия',   price:'от 45 000 ₽', description:'Имплантаты Nobel Biocare и Straumann. Протезирование «под ключ».', icon:'🔬' },
-    svc_005: { name:'Циркониевые коронки',      category:'Ортопедия',  price:'от 18 000 ₽', description:'Коронки из оксида циркония — прочные, эстетичные, без металла.', icon:'👑' },
-    svc_006: { name:'Виниры керамические',      category:'Эстетика',   price:'от 22 000 ₽', description:'Фарфоровые и E.max виниры. Голливудская улыбка за 2 визита.', icon:'💎' },
-    svc_007: { name:'Удаление зубов',           category:'Хирургия',   price:'от 1 800 ₽',  description:'Атравматичное удаление зубов, включая зубы мудрости.', icon:'🏥' },
-    svc_008: { name:'Детская стоматология',     category:'Педиатрия',  price:'от 1 500 ₽',  description:'Лечение молочных и постоянных зубов у детей с 3 лет.', icon:'👶' }
+    svc_001: { name:'Лечение кариеса',         category:'Терапия',    price:'от 4 000 ₽', description:'Безболезненное лечение кариеса любой стадии. Современные световые пломбы.', icon:'🦷' },
+    svc_002: { name:'Профессиональная чистка',  category:'Гигиена',    price:'от 2 800 ₽', description:'Ультразвуковое снятие камня, Air Flow, полировка и фторирование.', icon:'✨' },
+    svc_003: { name:'Установка брекетов',        category:'Ортодонтия', price:'от 40 000 ₽', description:'Металлические, керамические, сапфировые брекеты. Консультация ортодонта от 1 200 ₽.', icon:'😁' },
+    svc_004: { name:'Дентальная имплантация',   category:'Хирургия',   price:'от 29 000 ₽', description:'Имплантаты Ostem. Хирургическая установка, протезирование под ключ.', icon:'🔬' },
+    svc_005: { name:'Циркониевые коронки',      category:'Ортопедия',  price:'от 23 000 ₽', description:'Коронки из оксида циркония — прочные, эстетичные, без металла.', icon:'👑' },
+    svc_006: { name:'Виниры керамические',      category:'Эстетика',   price:'от 19 000 ₽', description:'Виниры E.max и цирконий. Голливудская улыбка за 2 визита.', icon:'💎' },
+    svc_007: { name:'Удаление зубов',           category:'Хирургия',   price:'от 1 900 ₽',  description:'Атравматичное удаление зубов, включая зубы мудрости.', icon:'🏥' },
+    svc_008: { name:'Детская стоматология',     category:'Педиатрия',  price:'от 2 000 ₽',  description:'Лечение молочных и постоянных зубов у детей с 3 лет.', icon:'👶' }
   },
   blogs: {
-    blog_001: { title:'Как правильно чистить зубы: полное руководство', excerpt:'Большинство людей чистят зубы неправильно. Рассказываем о технике, выборе щётки и пасты.', category:'Гигиена',    date:'10 янв 2025', pageId:'blog-chistit',     imgClass:'bi1' },
-    blog_002: { title:'Болит зуб — что делать до похода к врачу?',      excerpt:'Зубная боль может застать врасплох. Рассказываем, что делать самостоятельно.',           category:'Советы',     date:'22 янв 2025', pageId:'blog-bolit',       imgClass:'bi2' },
-    blog_003: { title:'Когда ставить брекеты: возраст, показания, виды',excerpt:'Брекеты можно поставить в любом возрасте. Разбираемся, когда лучше начинать лечение.',   category:'Ортодонтия', date:'5 фев 2025',  pageId:'blog-brekety',    imgClass:'bi3' },
-    blog_004: { title:'Сколько стоит имплант зуба в 2025 году?',        excerpt:'Объясняем, из чего складывается стоимость импланта и как выбрать клинику.',              category:'Протезир.',  date:'18 фев 2025', pageId:'blog-implant',    imgClass:'bi4' },
-    blog_005: { title:'Виниры или коронки: что выбрать?',               excerpt:'Разбираем разницу между винирами и коронками.',                                           category:'Эстетика',   date:'5 мар 2025',  pageId:'blog-viniры',     imgClass:'bi5' },
-    blog_006: { title:'Когда вести ребёнка к стоматологу впервые?',     excerpt:'Многие родители тянут с первым визитом. Объясняем почему важно прийти до проблем.',      category:'Дети',       date:'18 мар 2025', pageId:'blog-deti',       imgClass:'bi6' },
-    blog_007: { title:'Отбеливание зубов: виды, безопасность и результат',excerpt:'Офисное, домашнее, лазерное — что даёт реальный эффект.',                              category:'Гигиена',    date:'2 апр 2025',  pageId:'blog-otbelivanie',imgClass:'bi7' },
-    blog_008: { title:'Как перестать бояться стоматолога: советы врача', excerpt:'Стоматофобия — серьёзная проблема. Рассказываем, что делает наша клиника.',             category:'Психология', date:'15 апр 2025', pageId:'blog-strah',      imgClass:'bi8' }
+    blog_001: { title:'Как правильно чистить зубы: полное руководство', excerpt:'Большинство людей чистят зубы неправильно. Рассказываем о технике, выборе щётки и пасты.', category:'Гигиена',    date:'10 янв 2025', pageId:'blog-chistit',     imgClass:'bi1', imgUrl:'Статьи/Как правильно чистить зубы руководство от стоматолога.png' },
+    blog_002: { title:'Болит зуб — что делать до похода к врачу?',      excerpt:'Зубная боль может застать врасплох. Рассказываем, что делать самостоятельно.',           category:'Советы',     date:'22 янв 2025', pageId:'blog-bolit',       imgClass:'bi2', imgUrl:'Статьи/Болит зуб — что делать до похода к врачу.png' },
+    blog_003: { title:'Когда ставить брекеты: возраст, показания, виды',excerpt:'Брекеты можно поставить в любом возрасте. Разбираемся, когда лучше начинать лечение.',   category:'Ортодонтия', date:'5 фев 2025',  pageId:'blog-brekety',    imgClass:'bi3', imgUrl:'Статьи/Когда ставить брекеты возраст, показания, виды.png' },
+    blog_006: { title:'Когда вести ребёнка к стоматологу впервые?',     excerpt:'Многие родители тянут с первым визитом. Объясняем почему важно прийти до проблем.',      category:'Дети',       date:'18 мар 2025', pageId:'blog-deti',       imgClass:'bi6', imgUrl:'Статьи/Когда вести ребёнка к стоматологу впервые.png' },
+    blog_007: { title:'Отбеливание зубов: виды, безопасность и результат',excerpt:'Офисное, домашнее, лазерное — что даёт реальный эффект.',                              category:'Гигиена',    date:'2 апр 2025',  pageId:'blog-otbelivanie',imgClass:'bi7', imgUrl:'Статьи/Отбеливание зубов виды, безопасность и результат.png' },
+    blog_008: { title:'Как перестать бояться стоматолога: советы врача', excerpt:'Стоматофобия — серьёзная проблема. Рассказываем, что делает наша клиника.',             category:'Психология', date:'15 апр 2025', pageId:'blog-strah',      imgClass:'bi8', imgUrl:'Статьи/Как перестать бояться стоматолога советы врача.png' },
+    blog_009: { title:'Лечение кариеса в Костроме: методы, этапы и стоимость',          excerpt:'Кариес — самая частая стоматологическая проблема. Рассказываем о стадиях, методах и честных ценах на лечение.',      category:'Терапия',    date:'28 май 2025', pageId:'blog-karies-lechenie',   imgClass:'bi1', imgUrl:'Статьи/Лечение кариеса в Костроме методы, этапы и стоимость.png' },
+    blog_011: { title:'Имплантация зубов в Костроме: этапы, цены и противопоказания',   excerpt:'Всё об имплантации: кому показана, как проходит, сколько стоит и почему откладывать нельзя.',                        category:'Хирургия',   date:'3 июл 2025',  pageId:'blog-implant-info',       imgClass:'bi4', imgUrl:'Статьи/Имплантация зубов в Костроме этапы, цены и противопоказания.png' },
+    blog_012: { title:'Профессиональная чистка зубов в Костроме: зачем и как часто',    excerpt:'Чем отличается профгигиена от домашней чистки, что входит в процедуру и нужно ли делать это каждые 6 месяцев.',      category:'Гигиена',    date:'20 июл 2025', pageId:'blog-profchistka',        imgClass:'bi7', imgUrl:'Статьи/Профессиональная чистка зубов в Костроме зачем и как часто.png' },
+    blog_014: { title:'Пародонтит: первые признаки и лечение дёсен в Костроме',         excerpt:'Кровоточат дёсны, шатаются зубы? Это пародонтит. Объясняем, почему нельзя ждать и как проходит лечение.',             category:'Терапия',    date:'18 авг 2025', pageId:'blog-parodont',           imgClass:'bi8', imgUrl:'Статьи/Пародонтит первые признаки и лечение дёсен в Костроме.png' }
   },
   promos: {
-    promo_001: { title:'Бесплатный первичный осмотр', text:'Первое посещение — бесплатно. Полный осмотр полости рта, рентген-снимок и план лечения с ценами.', badge:'Всегда', colorClass:'pc1', btnText:'Оставить заявку', btnAction:"openLeadModal('lead')" },
+    promo_001: { title:'Гарантия 12 месяцев на всё лечение', text:'Мы уверены в качестве материалов и квалификации врачей. Гарантия на все виды лечения оформляется письменно.', badge:'Всегда', colorClass:'pc1', btnText:'Оставить заявку', btnAction:"openLeadModal('lead')" },
     promo_002: { title:'Чистка зубов в подарок', text:'При установке любых брекетов — профессиональная чистка Air Flow в подарок. Экономия до 5 000 рублей.', badge:'При установке брекетов', colorClass:'pc2', btnText:'Узнать подробнее', btnAction:"showPage('service-braces')" }
   }
 };
@@ -134,7 +133,19 @@ const DataManager = {
   resetAll() { if (typeof SiteState!=='undefined') SiteState.reset(); }
 };
 
-// ── 4. RENDER MANAGER ───────────────────────────────────────────
+// ── 4. ИКОНКИ КАТЕГОРИЙ УСЛУГ ───────────────────────────────────
+const SVC_ICONS = {
+  'Терапия':    `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3c-3 0-5 2.5-5 5.5 0 2 .5 3.5 1 5s1 5.5 3 5.5c1.5 0 2-2.5 3-2.5s1.5 2.5 3 2.5c2 0 2.5-4 3-5.5s1-3 1-5C18 6 16 3 13 3c-1 0-2 1-3 1S10 3 9 3z"/></svg>`,
+  'Гигиена':    `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="20" x2="15" y2="9"/><rect x="14" y="2" width="7" height="5.5" rx="2"/><line x1="15" y1="9" x2="15" y2="13.5"/><line x1="17.5" y1="9" x2="17.5" y2="12"/></svg>`,
+  'Ортодонтия': `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="7" width="5" height="10" rx="2"/><rect x="9.5" y="7" width="5" height="10" rx="2"/><rect x="18" y="7" width="5" height="10" rx="2"/><line x1="6" y1="12" x2="9.5" y2="12"/><line x1="14.5" y1="12" x2="18" y2="12"/></svg>`,
+  'Хирургия':   `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.47" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>`,
+  'Ортопедия':  `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19l2.5-8 4 5.5 2.5-8 2.5 8 4-5.5 2.5 8H3z"/><line x1="3" y1="19" x2="21" y2="19"/></svg>`,
+  'Эстетика':   `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+  'Педиатрия':  `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>`,
+};
+const SVC_ICONS_DEFAULT = `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3c-3 0-5 2.5-5 5.5 0 2 .5 3.5 1 5s1 5.5 3 5.5c1.5 0 2-2.5 3-2.5s1.5 2.5 3 2.5c2 0 2.5-4 3-5.5s1-3 1-5C18 6 16 3 13 3c-1 0-2 1-3 1S10 3 9 3z"/></svg>`;
+
+// ── 5. RENDER MANAGER ───────────────────────────────────────────
 const RenderManager = {
 
   renderDoctors() {
@@ -144,7 +155,7 @@ const RenderManager = {
         ? `<img src="${Utils.escapeHtml(doc.photo)}" alt="${Utils.escapeHtml(doc.name)}" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block"/>`
         : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
       return `<div class="doc-card" data-doc-id="${Utils.escapeHtml(id)}" style="cursor:pointer">
-        <div class="doc-photo doc-photo--img" style="height:280px">${ph}<div class="doc-spec-badge">${Utils.escapeHtml(doc.spec||'Специалист')}</div></div>
+        <div class="doc-photo doc-photo--img">${ph}<div class="doc-spec-badge">${Utils.escapeHtml(doc.spec||'Специалист')}</div></div>
         <div class="doc-body">
           <div class="doc-name">${Utils.escapeHtml(doc.name)}</div>
           <div class="doc-exp">${Utils.escapeHtml(doc.exp||'')}</div>
@@ -155,8 +166,14 @@ const RenderManager = {
     const html  = Object.keys(doctors).length ? Object.entries(doctors).map(([id,doc])=>_card(id,doc)).join('') : empty;
     const pageGrid = document.getElementById('doctors-page-grid');
     if (pageGrid) pageGrid.innerHTML = html;
-    // Главная (home-doctors-grid) обслуживается syncHomeDoctors() в index.html —
-    // там сохраняется случайный порядок. Не пишем сюда напрямую.
+    const homeGrid = document.getElementById('home-doc-grid');
+    if (homeGrid) {
+      homeGrid.innerHTML = html;
+      if (!homeGrid._docClickBound) {
+        homeGrid._docClickBound = true;
+        homeGrid.addEventListener('click', e => { const card=e.target.closest('[data-doc-id]'); if(card) openDocModal(card.dataset.docId); });
+      }
+    }
     if (pageGrid && !pageGrid._docClickBound) {
       pageGrid._docClickBound = true;
       pageGrid.addEventListener('click', e => { const card=e.target.closest('[data-doc-id]'); if(card) openDocModal(card.dataset.docId); });
@@ -180,7 +197,7 @@ const RenderManager = {
         <h3 style="font-size:18px;margin-bottom:16px;color:var(--c-text);border-bottom:2px solid var(--c-border);padding-bottom:8px">${Utils.escapeHtml(cat)}</h3>
         <div style="display:grid;gap:12px">${items.map(s=>`
           <div class="svc-list-item" style="display:flex;align-items:center;gap:16px;padding:16px;background:var(--c-card);border-radius:var(--r-sm);border:1px solid var(--c-border);cursor:pointer;transition:var(--tr)" onmouseenter="this.style.boxShadow='var(--shadow)'" onmouseleave="this.style.boxShadow='none'">
-            <div style="font-size:28px;flex-shrink:0">${Utils.escapeHtml(s.icon||'🦷')}</div>
+            <div style="flex-shrink:0;width:44px;height:44px;background:var(--c-accent-bg);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--c-accent)">${SVC_ICONS[s.category||'']||SVC_ICONS_DEFAULT}</div>
             <div style="flex:1">
               <div style="font-weight:700;margin-bottom:4px;color:var(--c-text)">${Utils.escapeHtml(s.name)}</div>
               <div style="font-size:13px;color:var(--c-text2)">${Utils.escapeHtml(s.description||'')}</div>
@@ -237,8 +254,8 @@ const RenderManager = {
     grid.innerHTML = entries.map(([id,b]) => {
       const cls = b.imgClass||'bi1';
       const imgDiv = b.imgUrl
-        ? `<div class="blog-img" style="background-image:url('${Utils.escapeHtml(b.imgUrl)}');background-size:cover;background-position:center"><div class="blog-cat-badge">${Utils.escapeHtml(b.category||'')}</div></div>`
-        : `<div class="blog-img ${cls}"><div class="blog-cat-badge">${Utils.escapeHtml(b.category||'')}</div></div>`;
+        ? `<div class="blog-img" style="background-image:url('${Utils.escapeHtml(b.imgUrl)}');background-size:cover;background-position:center"></div>`
+        : `<div class="blog-img ${cls}"></div>`;
       // Определяем excerpt: если rich-text — отображаем с разметкой, иначе plain
       const excerptHtml = b.excerpt
         ? (b.excerpt.includes('<') ? b.excerpt : Utils.escapeHtml(b.excerpt))
@@ -255,6 +272,7 @@ const RenderManager = {
   },
 
   renderPromos() {
+    return; // раздел Акции отключён
     const promos = (typeof SiteState!=='undefined')?(SiteState.get('promos')||{}):DataManager.getPromos();
     const entries = Object.entries(promos||{});
     const SAFE_ACTIONS = {
@@ -282,21 +300,12 @@ const RenderManager = {
   applySectionVisibility() {
     const sections = (typeof SiteState!=='undefined')?(SiteState.get('visibility')||{}):DataManager.getSections();
     if (!sections) return;
-    Object.entries(sections).forEach(([id, vis]) => {
-      // Скрываем/показываем страницу
+    Object.entries(sections).forEach(([id,vis]) => {
       const page = document.getElementById(`page-${id}`);
       if (page) page.style.display = vis ? '' : 'none';
-
-      // Синхронизируем все навигационные ссылки:
-      // .nav-link — десктоп, .mob-link — мобильное бургер-меню
-      // Ищем по data-section (надёжно) или по содержимому onclick (fallback)
-      document.querySelectorAll('.nav-link, .mob-link').forEach(link => {
-        const section = link.dataset.section;
-        const oc = link.getAttribute('onclick') || '';
-        const matches = section
-          ? section === id
-          : oc.includes(`'${id}'`);
-        if (matches) link.style.display = vis ? '' : 'none';
+      document.querySelectorAll('.nav-link, .mob-nav-link').forEach(link => {
+        const oc = link.getAttribute('onclick')||'';
+        if (oc.includes(`'${id}'`)) link.style.display = vis ? '' : 'none';
       });
     });
   },
@@ -502,19 +511,66 @@ function openBlogArticle(blogId) {
 
 // ── 8. ИНИЦИАЛИЗАЦИЯ ────────────────────────────────────────────
 const initApp = async function () {
+  // ── 0. Версия данных: проверяем ПЕРВЫМ, до Supabase/localStorage ─
+  // Если данные устарели — сразу сбрасываем и пропускаем все внешние загрузки.
+  let _freshReset = false;
+  if (typeof SiteState !== 'undefined' && typeof CMS_VERSION !== 'undefined') {
+    if (!SiteState._data) SiteState.load();
+    if ((SiteState.get('_version') || 0) < CMS_VERSION) {
+      console.log('[CMS] Устаревшие данные — сброс до v' + CMS_VERSION);
+      SiteState.reset();
+      SiteState.set('_version', CMS_VERSION);
+      _freshReset = true;
+    }
+  }
+
   // ── Загрузка данных: Supabase → localStorage → DEFAULT_DATA ─────
-  if (typeof SupabaseDB !== 'undefined') {
+  if (!_freshReset && typeof SupabaseDB !== 'undefined') {
     // Показываем индикатор загрузки
     document.body.style.opacity = '0.6';
     document.body.style.transition = 'opacity 0.3s';
-    try {
-      await SupabaseDB.loadAll();
-      console.log('[CMS] Данные загружены с Supabase');
-    } catch (e) {
-      console.warn('[CMS] Ошибка Supabase, переходим к localStorage:', e);
-      if (typeof SiteState !== 'undefined') SiteState.load();
-      else DataManager.initDefaults();
+try {
+  await SupabaseDB.loadAll();
+  console.log('[CMS] Данные загружены с Supabase');
+} catch (e) {
+  console.warn('[CMS] Supabase упал, пробуем localStorage:', e);
+
+  let loaded = false;
+
+  if (typeof SiteState !== 'undefined') {
+    const ls = SiteState.load();
+
+    const isEmpty =
+      !ls ||
+      (!Object.keys(ls.doctors || {}).length &&
+       !Object.keys(ls.reviews || {}).length &&
+       !Object.keys(ls.blogs || {}).length);
+
+    if (!isEmpty) {
+      console.log('[CMS] Данные взяты из localStorage');
+      loaded = true;
     }
+  }
+
+  // 👉 ЕСЛИ localStorage ПУСТ — ГРУЗИМ JSON
+  if (!loaded) {
+    try {
+      console.warn('[CMS] localStorage пуст, грузим data.json');
+
+      const res = await fetch('/data/data.json');
+      const data = await res.json();
+
+      if (typeof SiteState !== 'undefined' && SiteState._data) {
+        SiteState._data = data;
+      }
+
+      console.log('[CMS] Данные загружены из JSON');
+    } catch (jsonErr) {
+      console.error('[CMS] Даже JSON не загрузился:', jsonErr);
+      DataManager.initDefaults();
+    }
+  }
+}
     document.body.style.opacity = '1';
 
     // ── Проверка: не оказались ли все коллекции пустыми ───────────
@@ -568,9 +624,55 @@ const initApp = async function () {
       );
     }
 
-  } else {
+  } else if (!_freshReset) {
     if (typeof SiteState !== 'undefined') SiteState.load();
     else DataManager.initDefaults();
+  }
+
+  // ── Проверка целостности после загрузки ──────────────────────────
+  // Если Supabase или localStorage вернули устаревшие данные (другая клиника),
+  // сбрасываем принудительно. Срабатывает до первой миграции в Supabase.
+  if (!_freshReset && typeof SiteState !== 'undefined' && typeof CMS_DEFAULTS !== 'undefined') {
+    const loadedName = SiteState.get('clinic.name') || '';
+    const expectedName = CMS_DEFAULTS.clinic.name || '';
+    if (expectedName && loadedName && loadedName !== expectedName) {
+      console.warn('[CMS] Несоответствие данных клиники ("' + loadedName + '"). Сброс...');
+      SiteState.reset();
+      if (typeof CMS_VERSION !== 'undefined') SiteState.set('_version', CMS_VERSION);
+    }
+  }
+
+  // ── Врачи: DOCTORS const — единственный источник истины ─────────
+  // Если ключи в localStorage не совпадают с DOCTORS — принудительно обновляем.
+  // Пользовательские фото (загруженные через CMS) сохраняются.
+  if (typeof DOCTORS !== 'undefined' && typeof SiteState !== 'undefined' && SiteState._data) {
+    const d = SiteState.get('doctors') || {};
+    const constKeys = Object.keys(DOCTORS);
+    const storedKeys = Object.keys(d);
+    const keysMatch = constKeys.length === storedKeys.length &&
+                      constKeys.every(k => k in d);
+    if (!keysMatch) {
+      const fresh = JSON.parse(JSON.stringify(DOCTORS));
+      // Сохраняем загруженные через CMS фото
+      constKeys.forEach(k => {
+        if (d[k] && d[k].photo && d[k].photo !== DOCTORS[k].photo) {
+          fresh[k].photo = d[k].photo;
+        }
+      });
+      SiteState._data.doctors = fresh;
+      SiteState.save();
+      console.log('[CMS] Врачи синхронизированы из DOCTORS const (' + constKeys.length + ' чел.)');
+    }
+  }
+
+  // ── Блог: добавляем новые статьи из DEFAULT_DATA, не трогая старые
+  if (typeof DEFAULT_DATA !== 'undefined' && typeof SiteState !== 'undefined' && SiteState._data) {
+    const bl = SiteState.get('blogs') || {};
+    let blogsChanged = false;
+    Object.entries(DEFAULT_DATA.blogs).forEach(([k, v]) => {
+      if (!bl[k]) { bl[k] = v; blogsChanged = true; }
+    });
+    if (blogsChanged) { SiteState.set('blogs', bl); console.log('[CMS] Добавлены новые статьи блога'); }
   }
 
   // Убеждаемся, что страница статьи готова
