@@ -11,6 +11,13 @@ const Utils = {
       .replace(/&/g, '&amp;').replace(/</g, '&lt;')
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
   },
+  renderDoctorPhoto(photo, alt, style) {
+    if (!photo) return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+    const webp = encodeURI(photo.replace(/\.png$/i, '.webp'));
+    const png  = encodeURI(photo);
+    const imgStyle = style || 'width:100%;height:100%;object-fit:cover;object-position:top;display:block';
+    return `<picture><source srcset="${webp}" type="image/webp"/><img src="${png}" alt="${this.escapeHtml(alt||'')}" loading="lazy" style="${imgStyle}"/></picture>`;
+  },
   generateId(prefix = 'item') {
     if (typeof crypto !== 'undefined' && crypto.randomUUID) return `${prefix}_${crypto.randomUUID()}`;
     return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2,9)}`;
@@ -98,7 +105,11 @@ const DEFAULT_DATA = {
     blog_009: { title:'Лечение кариеса в Костроме: методы, этапы и стоимость',          excerpt:'Кариес — самая частая стоматологическая проблема. Рассказываем о стадиях, методах и честных ценах на лечение.',      category:'Терапия',    date:'28 май 2025', pageId:'blog-karies-lechenie', url:'blog/blog-karies-lechenie.html',   imgClass:'bi1', imgUrl:'img/blog/Лечение кариеса в Костроме методы, этапы и стоимость.webp' },
     blog_011: { title:'Имплантация зубов в Костроме: этапы, цены и противопоказания',   excerpt:'Всё об имплантации: кому показана, как проходит, сколько стоит и почему откладывать нельзя.',                        category:'Хирургия',   date:'3 июл 2025',  pageId:'blog-implant-info', url:'blog/blog-implant-info.html',       imgClass:'bi4', imgUrl:'img/blog/Имплантация зубов в Костроме этапы, цены и противопоказания.webp' },
     blog_012: { title:'Профессиональная чистка зубов в Костроме: зачем и как часто',    excerpt:'Чем отличается профгигиена от домашней чистки, что входит в процедуру и нужно ли делать это каждые 6 месяцев.',      category:'Гигиена',    date:'20 июл 2025', pageId:'blog-profchistka', url:'blog/blog-profchistka.html',        imgClass:'bi7', imgUrl:'img/blog/Профессиональная чистка зубов в Костроме зачем и как часто.webp' },
-    blog_014: { title:'Пародонтит: первые признаки и лечение дёсен в Костроме',         excerpt:'Кровоточат дёсны, шатаются зубы? Это пародонтит. Объясняем, почему нельзя ждать и как проходит лечение.',             category:'Терапия',    date:'18 авг 2025', pageId:'blog-parodont', url:'blog/blog-parodont.html',           imgClass:'bi8', imgUrl:'img/blog/Пародонтит первые признаки и лечение дёсен в Костроме.webp' }
+    blog_014: { title:'Пародонтит: первые признаки и лечение дёсен в Костроме',         excerpt:'Кровоточат дёсны, шатаются зубы? Это пародонтит. Объясняем, почему нельзя ждать и как проходит лечение.',             category:'Терапия',    date:'18 авг 2025', pageId:'blog-parodont',        url:'blog/blog-parodont.html',        imgClass:'bi8', imgUrl:'img/blog/Пародонтит первые признаки и лечение дёсен в Костроме.webp' },
+    blog_004: { title:'Имплантация зубов: всё что нужно знать',                         excerpt:'Как проходит имплантация зуба, сколько стоит, кому можно и нельзя. Подробный разбор от стоматолога.',                   category:'Хирургия',   date:'12 фев 2025', pageId:'blog-implant',         url:'blog/blog-implant.html',         imgClass:'bi4', imgUrl:'' },
+    blog_005: { title:'Сколько стоят брекеты в Костроме',                               excerpt:'Цены на брекеты в Костроме: от чего зависит стоимость, какие виды бывают, что входит в цену.',                          category:'Ортодонтия', date:'5 мар 2025',  pageId:'blog-brekety-cena',    url:'blog/blog-brekety-cena.html',    imgClass:'bi3', imgUrl:'' },
+    blog_010: { title:'Виниры на зубы: плюсы, минусы, альтернативы',                    excerpt:'Стоматологические виниры: что это такое, кому подходят, сколько стоят и как за ними ухаживать.',                        category:'Эстетика',   date:'10 июн 2025', pageId:'blog-viniры',          url:'blog/blog-viniры.html',          imgClass:'bi5', imgUrl:'' },
+    blog_013: { title:'Как выбрать стоматологию в Костроме',                             excerpt:'На что обратить внимание при выборе стоматологической клиники. Чек-лист от стоматолога Дента Смайл.',                  category:'Советы',     date:'5 авг 2025',  pageId:'blog-vybor-stom',      url:'blog/blog-vybor-stom.html',      imgClass:'bi2', imgUrl:'' }
   },
   promos: {
     promo_001: { title:'Гарантия 12 месяцев на всё лечение', text:'Мы уверены в качестве материалов и квалификации врачей. Гарантия на все виды лечения оформляется письменно.', badge:'Всегда', colorClass:'pc1', btnText:'Оставить заявку', btnAction:"openLeadModal('lead')" },
@@ -151,10 +162,7 @@ const RenderManager = {
   renderDoctors() {
     const doctors = (typeof SiteState!=='undefined')?(SiteState.get('doctors')||{}):DataManager.getDoctors();
     const _card = (id, doc) => {
-      const _webp = doc.photo ? encodeURI(doc.photo.replace(/\.png$/i, '.webp')) : '';
-      const ph = doc.photo
-        ? `<picture><source srcset="${_webp}" type="image/webp"/><img src="${encodeURI(doc.photo)}" alt="${Utils.escapeHtml(doc.name)}" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block"/></picture>`
-        : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+      const ph = Utils.renderDoctorPhoto(doc.photo, doc.name);
       return `<div class="doc-card" data-doc-id="${Utils.escapeHtml(id)}" style="cursor:pointer">
         <div class="doc-photo doc-photo--img">${ph}<div class="doc-spec-badge">${Utils.escapeHtml(doc.spec||'Специалист')}</div></div>
         <div class="doc-body">
@@ -277,11 +285,16 @@ const RenderManager = {
     const promos = (typeof SiteState!=='undefined')?(SiteState.get('promos')||{}):DataManager.getPromos();
     const entries = Object.entries(promos||{});
     const SAFE_ACTIONS = {
-      "openLeadModal('lead')":"openLeadModal('lead')", "showPage('doctors')":"showPage('doctors')",
-      "showPage('services')":"showPage('services')", "showPage('about')":"showPage('about')",
-      "showPage('service-braces')":"showPage('service-braces')", "showPage('service-karies')":"showPage('service-karies')",
-      "showPage('service-udalenie')":"showPage('service-udalenie')", "showPage('service-protez')":"showPage('service-protez')",
-      "showPage('service-cleaning')":"showPage('service-cleaning')", "showPage('service-children')":"showPage('service-children')"
+      "openLeadModal('lead')":                   "openLeadModal('lead')",
+      "window.location.href='doctors.html'":     "window.location.href='doctors.html'",
+      "window.location.href='services.html'":    "window.location.href='services.html'",
+      "window.location.href='about.html'":       "window.location.href='about.html'",
+      "window.location.href='service/service-braces.html'":   "window.location.href='service/service-braces.html'",
+      "window.location.href='service/service-karies.html'":   "window.location.href='service/service-karies.html'",
+      "window.location.href='service/service-udalenie.html'": "window.location.href='service/service-udalenie.html'",
+      "window.location.href='service/service-protez.html'":   "window.location.href='service/service-protez.html'",
+      "window.location.href='service/service-cleaning.html'": "window.location.href='service/service-cleaning.html'",
+      "window.location.href='service/service-children.html'": "window.location.href='service/service-children.html'"
     };
     const _card = p => {
       const safeAction = SAFE_ACTIONS[p.btnAction]||"openLeadModal('lead')";
@@ -413,7 +426,10 @@ const renderAboutPageFromData = function (s) {
   }
 };
 
-// ── 7. ДИНАМИЧЕСКАЯ СТРАНИЦА СТАТЬИ ─────────────────────────────
+// ── 7. ДИНАМИЧЕСКАЯ СТРАНИЦА СТАТЬИ (LEGACY SPA) ─────────────────
+// Используется только для CMS-статей без статической страницы (без pageId).
+// Все статические страницы блога теперь в /blog/*.html.
+// Не удалять: fallback для статей, созданных прямо в CMS-панели.
 /**
  * Создаёт или получает `#page-article` и регистрирует его в роутере PAGES.
  */
@@ -428,8 +444,8 @@ function _ensureArticlePage() {
       <div class="pg-hero art-hero">
         <div class="art-wrap">
           <div class="bc">
-            <span onclick="showPage('home')" style="cursor:pointer">Главная</span> /
-            <span onclick="showPage('blog')" style="cursor:pointer">Блог</span> /
+            <a class="bc-link" href="index.html">Главная</a> /
+            <a class="bc-link" href="blog.html">Блог</a> /
             <span id="art-bc-title" style="color:var(--c-text2)">Статья</span>
           </div>
           <div id="art-tag" class="art-tag"></div>
@@ -449,9 +465,7 @@ function _ensureArticlePage() {
             </button>
           </div>
           <div style="margin-top:32px;text-align:center">
-            <button onclick="showPage('blog')" style="background:none;border:none;cursor:pointer;color:var(--c-text2);font-size:14px">
-              ← Вернуться в блог
-            </button>
+            <a href="blog.html" style="color:var(--c-text2);font-size:14px;text-decoration:none">← Вернуться в блог</a>
           </div>
         </div>
       </section>`;
@@ -521,23 +535,9 @@ try {
     }
   }
 
-  // 👉 ЕСЛИ localStorage ПУСТ — ГРУЗИМ JSON
+  // 👉 ЕСЛИ localStorage ПУСТ — ИНИЦИАЛИЗИРУЕМ ДАННЫМИ ПО УМОЛЧАНИЮ
   if (!loaded) {
-    try {
-      console.warn('[CMS] localStorage пуст, грузим data.json');
-
-      const res = await fetch('/data/data.json?v=' + Date.now(), { cache: 'no-store' });
-      const data = await res.json();
-
-      if (typeof SiteState !== 'undefined' && SiteState._data) {
-        SiteState._data = data;
-      }
-
-      console.log('[CMS] Данные загружены из JSON');
-    } catch (jsonErr) {
-      console.error('[CMS] Даже JSON не загрузился:', jsonErr);
-      DataManager.initDefaults();
-    }
+    DataManager.initDefaults();
   }
 }
     document.body.style.opacity = '1';
@@ -653,8 +653,6 @@ try {
   RenderManager.renderAll();
   updateNewsBanner();
 
-  const hash = location.hash.replace('#', '');
-  if (hash && typeof showPage === 'function') showPage(hash);
   if (typeof runCounters       === 'function') setTimeout(runCounters, 400);
   if (typeof shuffleHomeDoctors === 'function') shuffleHomeDoctors();
 

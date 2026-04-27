@@ -289,10 +289,9 @@ function shuffleHomeDoctors() {
     [entries[i], entries[j]] = [entries[j], entries[i]];
   }
   grid.innerHTML = entries.slice(0, 4).map(([key, d]) => {
-    const _dwebp = d.photo ? encodeURI(d.photo.replace(/\.png$/i, '.webp')) : '';
-    const photo = d.photo
-      ? `<picture><source srcset="${_dwebp}" type="image/webp"/><img src="${encodeURI(d.photo)}" alt="${d.name || ''}" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block"/></picture>`
-      : '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" style="opacity:.25"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+    const photo = (typeof Utils !== 'undefined')
+      ? Utils.renderDoctorPhoto(d.photo, d.name)
+      : (d.photo ? `<img src="${encodeURI(d.photo)}" alt="${d.name||''}" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block"/>` : '');
     const expText = (d.exp || '').replace('Стаж', 'Опыт') + ((d.services||[])[0] ? ' · ' + (d.services||[])[0] : '');
     return `<div class="doc-card" onclick="openDocModal('${key}')">
       <div class="doc-photo doc-photo--img">${photo}<div class="doc-spec-badge">${d.spec || ''}</div></div>

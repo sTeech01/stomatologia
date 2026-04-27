@@ -38,7 +38,6 @@ async function openAdmin() {
       }
       return;
     }
-    if (typeof showPage === 'function') showPage('admin');
     initAdminPage();
     return;
   }
@@ -55,7 +54,6 @@ async function openAdmin() {
     }
     return;
   }
-  if (typeof showPage === 'function') showPage('admin');
   initAdminPage();
 }
 
@@ -65,7 +63,6 @@ async function exitAdmin() {
   } else if (typeof window.closeAdminSession === 'function') {
     window.closeAdminSession();
   }
-  if (typeof showPage === 'function') showPage('home');
 }
 
 // ── Инициализация ────────────────────────────────────────────────
@@ -765,10 +762,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!d) { if (typeof _origDocModal==='function') _origDocModal(key); return; }
     var dmPhoto = document.getElementById('dm-photo');
     if (dmPhoto) {
-      const _mwebp = d.photo ? encodeURI(d.photo.replace(/\.png$/i, '.webp')) : '';
-      dmPhoto.innerHTML = d.photo
-        ? `<picture><source srcset="${_mwebp}" type="image/webp"/><img src="${encodeURI(d.photo)}" style="width:100%;height:100%;object-fit:cover;object-position:top;border-radius:inherit"/></picture>`
-        : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+      dmPhoto.innerHTML = (typeof Utils !== 'undefined')
+        ? Utils.renderDoctorPhoto(d.photo, d.name, 'width:100%;height:100%;object-fit:cover;object-position:top;border-radius:inherit')
+        : (d.photo ? `<img src="${encodeURI(d.photo)}" style="width:100%;height:100%;object-fit:cover;object-position:top;border-radius:inherit"/>` : '');
     }
     var _t = (id,v) => { var e=document.getElementById(id); if(e) e.textContent=v||''; };
     _t('dm-name',d.name); _t('dm-spec',d.spec); _t('dm-exp',d.exp); _t('dm-about',d.about);
