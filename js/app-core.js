@@ -106,10 +106,6 @@ const DEFAULT_DATA = {
     blog_011: { title:'Имплантация зубов в Костроме: этапы, цены и противопоказания',   excerpt:'Всё об имплантации: кому показана, как проходит, сколько стоит и почему откладывать нельзя.',                        category:'Хирургия',   date:'3 июл 2025',  pageId:'blog-implant-info', url:'blog/blog-implant-info.html',       imgClass:'bi4', imgUrl:'img/blog/Имплантация зубов в Костроме этапы, цены и противопоказания.webp' },
     blog_012: { title:'Профессиональная чистка зубов в Костроме: зачем и как часто',    excerpt:'Чем отличается профгигиена от домашней чистки, что входит в процедуру и нужно ли делать это каждые 6 месяцев.',      category:'Гигиена',    date:'20 июл 2025', pageId:'blog-profchistka', url:'blog/blog-profchistka.html',        imgClass:'bi7', imgUrl:'img/blog/Профессиональная чистка зубов в Костроме зачем и как часто.webp' },
     blog_014: { title:'Пародонтит: первые признаки и лечение дёсен в Костроме',         excerpt:'Кровоточат дёсны, шатаются зубы? Это пародонтит. Объясняем, почему нельзя ждать и как проходит лечение.',             category:'Терапия',    date:'18 авг 2025', pageId:'blog-parodont',        url:'blog/blog-parodont.html',        imgClass:'bi8', imgUrl:'img/blog/Пародонтит первые признаки и лечение дёсен в Костроме.webp' },
-    blog_004: { title:'Имплантация зубов: всё что нужно знать',                         excerpt:'Как проходит имплантация зуба, сколько стоит, кому можно и нельзя. Подробный разбор от стоматолога.',                   category:'Хирургия',   date:'12 фев 2025', pageId:'blog-implant',         url:'blog/blog-implant.html',         imgClass:'bi4', imgUrl:'' },
-    blog_005: { title:'Сколько стоят брекеты в Костроме',                               excerpt:'Цены на брекеты в Костроме: от чего зависит стоимость, какие виды бывают, что входит в цену.',                          category:'Ортодонтия', date:'5 мар 2025',  pageId:'blog-brekety-cena',    url:'blog/blog-brekety-cena.html',    imgClass:'bi3', imgUrl:'' },
-    blog_010: { title:'Виниры на зубы: плюсы, минусы, альтернативы',                    excerpt:'Стоматологические виниры: что это такое, кому подходят, сколько стоят и как за ними ухаживать.',                        category:'Эстетика',   date:'10 июн 2025', pageId:'blog-viniры',          url:'blog/blog-viniры.html',          imgClass:'bi5', imgUrl:'' },
-    blog_013: { title:'Как выбрать стоматологию в Костроме',                             excerpt:'На что обратить внимание при выборе стоматологической клиники. Чек-лист от стоматолога Дента Смайл.',                  category:'Советы',     date:'5 авг 2025',  pageId:'blog-vybor-stom',      url:'blog/blog-vybor-stom.html',      imgClass:'bi2', imgUrl:'' }
   },
   promos: {
     promo_001: { title:'Гарантия 12 месяцев на всё лечение', text:'Мы уверены в качестве материалов и квалификации врачей. Гарантия на все виды лечения оформляется письменно.', badge:'Всегда', colorClass:'pc1', btnText:'Оставить заявку', btnAction:"openLeadModal('lead')" },
@@ -167,7 +163,6 @@ const RenderManager = {
         <div class="doc-photo doc-photo--img">${ph}<div class="doc-spec-badge">${Utils.escapeHtml(doc.spec||'Специалист')}</div></div>
         <div class="doc-body">
           <div class="doc-name">${Utils.escapeHtml(doc.name)}</div>
-          <div class="doc-exp">${Utils.escapeHtml(doc.exp||'')}</div>
           <button class="doc-btn" onclick="event.stopPropagation();openLeadModal('lead')">Оставить заявку</button>
         </div></div>`;
     };
@@ -493,6 +488,8 @@ function openBlogArticle(blogId) {
 }
 
 // ── 8. ИНИЦИАЛИЗАЦИЯ ────────────────────────────────────────────
+let _supabaseLoaded = false;
+
 const initApp = async function () {
   // ── 0. Версия данных: проверяем ПЕРВЫМ, до Supabase/localStorage ─
   // Если данные устарели — сразу сбрасываем и пропускаем все внешние загрузки.
@@ -514,6 +511,7 @@ const initApp = async function () {
     document.body.style.transition = 'opacity 0.3s';
 try {
   await SupabaseDB.loadAll();
+  _supabaseLoaded = true;
   console.log('[CMS] Данные загружены с Supabase');
 } catch (e) {
   console.warn('[CMS] Supabase упал, пробуем localStorage:', e);
@@ -611,40 +609,38 @@ try {
     }
   }
 
-  // ── Врачи: DOCTORS const — единственный источник истины ─────────
-  // Синхронизируем если: ключи не совпадают ИЛИ хотя бы у одного врача
-  // путь к фото устарел (не data:/blob:/http и не совпадает с DOCTORS const).
+  // ── Врачи: DOCTORS const — fallback когда Supabase не вернул данных ──
+  // Если Supabase загружен и вернул врачей — НЕ трогаем (Supabase = источник истины).
+  // Если Supabase не подключён или вернул пустую коллекцию — используем DOCTORS const.
   if (typeof DOCTORS !== 'undefined' && typeof SiteState !== 'undefined' && SiteState._data) {
     const d = SiteState.get('doctors') || {};
-    const constKeys = Object.keys(DOCTORS);
-    const storedKeys = Object.keys(d);
-    const keysMatch = constKeys.length === storedKeys.length &&
-                      constKeys.every(k => k in d);
-    const isCustomPhoto = p => p && (p.startsWith('data:') || p.startsWith('blob:') || p.startsWith('http'));
-    const hasStalePhoto = keysMatch && constKeys.some(k =>
-      d[k] && d[k].photo && !isCustomPhoto(d[k].photo) && d[k].photo !== DOCTORS[k].photo
-    );
-    if (!keysMatch || hasStalePhoto) {
+    if (!_supabaseLoaded || Object.keys(d).length === 0) {
       const fresh = JSON.parse(JSON.stringify(DOCTORS));
-      // Сохраняем только реально загруженные через CMS фото (data: / blob: / http)
-      constKeys.forEach(k => {
+      const isCustomPhoto = p => p && (p.startsWith('data:') || p.startsWith('blob:') || p.startsWith('http'));
+      Object.keys(DOCTORS).forEach(k => {
         if (d[k] && isCustomPhoto(d[k].photo)) fresh[k].photo = d[k].photo;
       });
       SiteState._data.doctors = fresh;
       SiteState.save();
-      console.log('[CMS] Врачи синхронизированы из DOCTORS const (' + constKeys.length + ' чел.)');
+      console.log('[CMS] Врачи из DOCTORS const (' + Object.keys(DOCTORS).length + ' чел.)');
     }
   }
 
-  // ── Блог: синхронизируем imgUrl из DEFAULT_DATA (путь мог измениться)
+  // ── Блог: imgUrl и url из DEFAULT_DATA (статические картинки/ссылки) ──
+  // Когда Supabase загружен: только обновляем imgUrl/url для существующих записей.
+  // Когда Supabase недоступен: добавляем отсутствующие статьи как fallback.
   if (typeof DEFAULT_DATA !== 'undefined' && typeof SiteState !== 'undefined' && SiteState._data) {
     const bl = SiteState.get('blogs') || {};
     let blogsChanged = false;
     Object.entries(DEFAULT_DATA.blogs).forEach(([k, v]) => {
-      if (!bl[k]) { bl[k] = v; blogsChanged = true; }
-      else if (bl[k].imgUrl !== v.imgUrl) { bl[k].imgUrl = v.imgUrl; blogsChanged = true; }
+      if (bl[k]) {
+        if (bl[k].imgUrl !== v.imgUrl) { bl[k].imgUrl = v.imgUrl; blogsChanged = true; }
+        if (v.url && !bl[k].url)       { bl[k].url    = v.url;    blogsChanged = true; }
+      } else if (!_supabaseLoaded) {
+        bl[k] = v; blogsChanged = true;
+      }
     });
-    if (blogsChanged) { SiteState.set('blogs', bl); console.log('[CMS] Добавлены новые статьи блога'); }
+    if (blogsChanged) { SiteState.set('blogs', bl); console.log('[CMS] Обновлены данные блога'); }
   }
 
   // Убеждаемся, что страница статьи готова
@@ -652,6 +648,11 @@ try {
 
   RenderManager.renderAll();
   updateNewsBanner();
+
+  // Если открыта страница admin.html — обновляем UI после загрузки данных из Supabase
+  if (typeof initAdminPage === 'function' && document.getElementById('admin-tabs-nav')) {
+    initAdminPage();
+  }
 
   if (typeof runCounters       === 'function') setTimeout(runCounters, 400);
   if (typeof shuffleHomeDoctors === 'function') shuffleHomeDoctors();

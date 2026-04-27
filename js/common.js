@@ -292,10 +292,9 @@ function shuffleHomeDoctors() {
     const photo = (typeof Utils !== 'undefined')
       ? Utils.renderDoctorPhoto(d.photo, d.name)
       : (d.photo ? `<img src="${encodeURI(d.photo)}" alt="${d.name||''}" loading="lazy" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block"/>` : '');
-    const expText = (d.exp || '').replace('Стаж', 'Опыт') + ((d.services||[])[0] ? ' · ' + (d.services||[])[0] : '');
     return `<div class="doc-card" onclick="openDocModal('${key}')">
       <div class="doc-photo doc-photo--img">${photo}<div class="doc-spec-badge">${d.spec || ''}</div></div>
-      <div class="doc-body"><div class="doc-name">${d.name || ''}</div><div class="doc-exp">${expText}</div><button class="doc-btn" onclick="event.stopPropagation();openLeadModal('lead')">Оставить заявку</button></div>
+      <div class="doc-body"><div class="doc-name">${d.name || ''}</div><button class="doc-btn" onclick="event.stopPropagation();openLeadModal('lead')">Оставить заявку</button></div>
     </div>`;
   }).join('');
 }

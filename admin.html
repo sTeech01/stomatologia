@@ -975,7 +975,6 @@
         await AdminAuth.login(emailOrLogin, password);
         window.closeAdminLogin();
         if (typeof initAdminPage === 'function') initAdminPage();
-        if (typeof initAdminPage === 'function') initAdminPage();
       } catch (e) {
         if (errEl) { errEl.textContent = 'Неверный email или пароль'; errEl.style.display = 'block'; }
         var pi = document.getElementById('adminPasswordInput');
@@ -993,10 +992,7 @@
     if (inputHash === CRED_HASH) {
       _startSession();
       window.closeAdminLogin();
-      if (typeof initAdminPage === 'function') {
-        if (typeof initAdminPage === 'function') initAdminPage();
-        initAdminPage();
-      }
+      if (typeof initAdminPage === 'function') initAdminPage();
     } else {
       if (errEl) { errEl.textContent = 'Неверный логин или пароль'; errEl.style.display='block'; }
       var pi = document.getElementById('adminPasswordInput');
@@ -1017,7 +1013,6 @@
     var _origOpenAdmin = window.openAdmin;
     window.openAdmin = function() {
       if (isAdminAuthenticated()) {
-        if (typeof initAdminPage === 'function') initAdminPage();
         if (typeof initAdminPage === 'function') initAdminPage();
       } else {
         _showModal();
