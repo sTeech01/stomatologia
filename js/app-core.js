@@ -655,6 +655,7 @@ if (typeof DOCTORS !== 'undefined' && typeof SiteState !== 'undefined') {
     });
     SiteState._data.doctors = fresh;
     SiteState.save();
+    if (typeof RenderManager !== 'undefined') { RenderManager.renderDoctors(); }
     console.log('[CMS] Врачи из DOCTORS const (' + Object.keys(DOCTORS).length + ' чел.)');
   }
 
