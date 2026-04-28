@@ -83,9 +83,22 @@ const SupabaseDB = {
     const toMap = (arr) => (arr || []).reduce((m, r) => ({ ...m, [r.id]: r }), {});
 
     // Нормализуем поля врачей (photo_url → photo)
-    const doctorsMap = toMap(
+    let doctorsMap = toMap(
       (doctors.data || []).map(d => ({ ...d, photo: d.photo_url || null }))
     );
+
+    // 👉 ЕСЛИ есть DOCTORS — используем их как основу
+    if (typeof DOCTORS !== 'undefined') {
+      const fresh = JSON.parse(JSON.stringify(DOCTORS));
+
+      Object.keys(fresh).forEach(k => {
+        if (doctorsMap[k] && doctorsMap[k].photo) {
+          fresh[k].photo = doctorsMap[k].photo;
+        }
+      });
+
+      doctorsMap = fresh;
+    }
 
     // Нормализуем поля блогов (img_class → imgClass, page_id → pageId)
     const blogsMap = toMap(
