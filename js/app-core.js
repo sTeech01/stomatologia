@@ -170,7 +170,7 @@ const RenderManager = {
     const html  = Object.keys(doctors).length ? Object.entries(doctors).map(([id,doc])=>_card(id,doc)).join('') : empty;
     const pageGrid = document.getElementById('doctors-page-grid');
     if (pageGrid) pageGrid.innerHTML = html;
-    const homeGrid = document.getElementById('home-doc-grid');
+    const homeGrid = document.getElementById('home-docs-grid');
     if (homeGrid) {
       homeGrid.innerHTML = html;
       if (!homeGrid._docClickBound) {

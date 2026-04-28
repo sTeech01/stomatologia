@@ -1379,8 +1379,9 @@ body.fs-xl{zoom:1.3 !important}
   .hdr-phone{display:none}
   .hdr-right .btn-p{display:none}
   .page{padding-bottom:74px}
-  .hero-inner{grid-template-columns:1fr;align-items:start;gap:36px;padding:40px 16px}
-  .hero-visual{display:none}
+  .hero-inner{grid-template-columns:1fr;align-items:start;gap:24px;padding:40px 16px}
+  .hero-visual{display:flex}
+  .hero-card{min-height:260px}
   .adv-grid{grid-template-columns:repeat(2,1fr)}
   .srv-grid{grid-template-columns:repeat(2,1fr)}
   .doc-grid,.doc-page-grid{grid-template-columns:repeat(2,1fr)}

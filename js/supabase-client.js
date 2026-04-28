@@ -126,7 +126,10 @@ const SupabaseDB = {
 
     // Записываем в SiteState (SSOT — продолжает работать без изменений)
     if (typeof SiteState !== 'undefined') {
+      const _ver = (SiteState._data && SiteState._data._version) ||
+                   (typeof CMS_VERSION !== 'undefined' ? CMS_VERSION : 6);
       SiteState._data = {
+        _version:   _ver,
         clinic:     s.clinic     || {},
         news:       s.news       || {},
         visibility: s.visibility || {},
