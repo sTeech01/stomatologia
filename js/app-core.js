@@ -258,7 +258,7 @@ const RenderManager = {
     grid.innerHTML = entries.map(([id,b]) => {
       const cls = b.imgClass||'bi1';
       const imgDiv = b.imgUrl
-        ? `<div class="blog-img" style="background-image:url('${Utils.escapeHtml(b.imgUrl)}');background-size:cover;background-position:center"></div>`
+        ? `<div class="blog-img" style="background-image:url('${Utils.escapeHtml(b.imgUrl)}');background-size:cover;background-position:center top"></div>`
         : `<div class="blog-img ${cls}"></div>`;
       // Определяем excerpt: если rich-text — отображаем с разметкой, иначе plain
       const excerptHtml = b.excerpt
@@ -312,9 +312,8 @@ const RenderManager = {
     Object.entries(sections).forEach(([id,vis]) => {
       const page = document.getElementById(`page-${id}`);
       if (page) page.style.display = vis ? '' : 'none';
-      document.querySelectorAll('.nav-link, .mob-nav-link').forEach(link => {
-        const oc = link.getAttribute('onclick')||'';
-        if (oc.includes(`'${id}'`)) link.style.display = vis ? '' : 'none';
+      document.querySelectorAll('[data-section]').forEach(link => {
+        if (link.dataset.section === id) link.style.display = vis ? '' : 'none';
       });
     });
   },
