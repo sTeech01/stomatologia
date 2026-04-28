@@ -520,11 +520,12 @@ const initApp = async function () {
           technologies: _c.technologies||[]
         });
       }
-      // Динамические секции (отзывы, врачи, блог)
+      // Динамические секции (отзывы, врачи, блог, видимость навигации)
       if (typeof RenderManager !== 'undefined') {
         RenderManager.renderReviews();
         RenderManager.renderDoctors();
         RenderManager.renderBlogs();
+        RenderManager.applySectionVisibility();
       }
     }
   }
