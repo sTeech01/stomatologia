@@ -261,10 +261,11 @@ body.fs-xl{zoom:1.3 !important}
   gap:10px;
 }
 .mob-cta a,.mob-cta button{
-  flex:1;min-height:46px;
+  flex:1;min-height:46px;min-width:0;
   font-size:14px;font-weight:700;
   border-radius:50px;display:flex;
   align-items:center;justify-content:center;gap:6px;
+  overflow:hidden;
 }
 
 .page{display:none;min-height:100vh}
@@ -1359,6 +1360,8 @@ body.fs-xl{zoom:1.3 !important}
   .nav{display:none}
   .burger{display:flex}
   .mob-cta{display:flex}
+  .hdr-phone{display:none}
+  .hdr-right .btn-p{display:none}
   .page{padding-bottom:74px}
   .hero-inner{grid-template-columns:1fr;align-items:start;gap:36px;padding:40px 16px}
   .hero-visual{display:none}
@@ -1384,12 +1387,39 @@ body.fs-xl{zoom:1.3 !important}
   .srv-cats{grid-template-columns:1fr}
 }
 
+@media(max-width:768px){
+  .adv-grid6{
+    display:grid !important;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    border:none;
+  }
+  .adv-cell{
+    padding:12px;
+    border-radius:12px;
+    border:1px solid var(--c-border);
+  }
+  .steps-h-row{
+    display:grid !important;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+  .step-h{padding:12px}
+  .step-h-arrow{display:none !important}
+  .footer-grid{
+    display:grid !important;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+  }
+  .footer-grid>div:first-child{grid-column:span 2}
+}
+
 @media(max-width:640px){
   body{padding-top:60px}
   .hdr{height:60px;padding:0 12px}
   .page{padding-bottom:74px}
   .mob-nav{top:60px}
-  .a11y-panel{bottom:76px;right:8px;width:calc(100vw - 16px)}
+  .a11y-panel{bottom:76px;right:8px;width:calc(100vw - 16px);max-height:calc(100vh - 160px);overflow-y:auto}
   .fab-bar{bottom:76px;right:10px}
   .section{padding:48px 16px}
   .s-title{font-size:clamp(26px,7vw,38px)}
@@ -1404,6 +1434,7 @@ body.fs-xl{zoom:1.3 !important}
   .stat-count{font-size:40px}
   .adv-grid,.srv-grid,.cases-grid,
   .rev-grid,.promo-grid,.ba-grid,.cases-pg-grid,.blog-grid{grid-template-columns:1fr}
+  .srv-img{height:auto;aspect-ratio:16/9}
   .doc-grid,.doc-page-grid{grid-template-columns:repeat(2,1fr)}
   .steps-grid{grid-template-columns:1fr 1fr;gap:12px}
   .footer-grid{grid-template-columns:1fr;gap:24px}
@@ -1420,6 +1451,11 @@ body.fs-xl{zoom:1.3 !important}
   .doc-modal-box{border-radius:16px}
   .doc-exp{display:none}
   .doc-name{font-size:14px}
+}
+
+@media(max-width:400px){
+  .mob-cta a,.mob-cta button{font-size:12px;gap:4px}
+  .mob-cta a svg,.mob-cta button svg{width:16px;height:16px;flex-shrink:0}
 }
 
 @media(max-width:360px){
