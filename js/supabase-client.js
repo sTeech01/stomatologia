@@ -35,13 +35,12 @@ const SupabaseDB = {
   async loadAll() {
     if (!_sb) throw new Error('Supabase SDK не инициализирован');
 
-    const [settings, doctors, reviews, blogs, promos, services, svcPages] =
+    const [settings, doctors, reviews, blogs, services, svcPages] =
       await Promise.all([
         _sb.from('site_settings').select('*').eq('id', 1).single(),
         _sb.from('doctors').select('*').order('created_at'),
         _sb.from('reviews').select('*').order('created_at'),
         _sb.from('blogs').select('*').order('created_at', { ascending: false }),
-        _sb.from('promos').select('*').order('created_at'),
         _sb.from('services').select('*').order('created_at'),
         _sb.from('svc_pages').select('*'),
       ]);
@@ -50,7 +49,6 @@ const SupabaseDB = {
     console.log('[Supabase] doctors:',   doctors.data?.length,   doctors.error   || 'OK');
     console.log('[Supabase] reviews:',   reviews.data?.length,   reviews.error   || 'OK');
     console.log('[Supabase] blogs:',     blogs.data?.length,     blogs.error     || 'OK');
-    console.log('[Supabase] promos:',    promos.data?.length,    promos.error    || 'OK');
     console.log('[Supabase] services:',  services.data?.length,  services.error  || 'OK');
     console.log('[Supabase] svcPages:',  svcPages.data?.length,  svcPages.error  || 'OK');
     console.log('[Supabase] settings:',  settings.data ? 1 : 0,  settings.error  || 'OK');
@@ -60,7 +58,6 @@ const SupabaseDB = {
     if (doctors.error)  console.warn('[Supabase] Ошибка doctors:',  doctors.error);
     if (reviews.error)  console.warn('[Supabase] Ошибка reviews:',  reviews.error);
     if (blogs.error)    console.warn('[Supabase] Ошибка blogs:',    blogs.error);
-    if (promos.error)   console.warn('[Supabase] Ошибка promos:',   promos.error);
     if (services.error) console.warn('[Supabase] Ошибка services:', services.error);
     if (svcPages.error) console.warn('[Supabase] Ошибка svcPages:', svcPages.error);
     if (settings.error) console.warn('[Supabase] Ошибка settings:', settings.error);
@@ -73,7 +70,6 @@ const SupabaseDB = {
       (!doctors.data  || doctors.data.length  === 0) &&
       (!reviews.data  || reviews.data.length  === 0) &&
       (!blogs.data    || blogs.data.length    === 0) &&
-      (!promos.data   || promos.data.length   === 0) &&
       (!services.data || services.data.length === 0);
 
     if (allEmpty) {
@@ -97,16 +93,6 @@ const SupabaseDB = {
         ...b,
         imgClass: b.img_class || 'bi1',
         pageId:   b.page_id || '',
-      }))
-    );
-
-    // Нормализуем поля акций (color_class → colorClass, btn_text → btnText, btn_action → btnAction)
-    const promosMap = toMap(
-      (promos.data || []).map(p => ({
-        ...p,
-        colorClass: p.color_class || 'pc1',
-        btnText:    p.btn_text    || 'Подробнее',
-        btnAction:  p.btn_action  || "openLeadModal('lead')",
       }))
     );
 
@@ -136,7 +122,7 @@ const SupabaseDB = {
         doctors:    doctorsMap,
         reviews:    toMap(reviews.data),
         blogs:      blogsMap,
-        promos:     promosMap,
+        promos:     {},
         services:   toMap(services.data),
         svcPages:   svcPagesMap,
       };
