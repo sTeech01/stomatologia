@@ -541,28 +541,9 @@ const initApp = async function () {
   // ── Загрузка данных: Supabase → localStorage → DEFAULT_DATA ─────
   if (!_freshReset && typeof SupabaseDB !== 'undefined') {
 try {
-// 👉 СРАЗУ подставляем врачей, чтобы не было пустоты
-if (typeof DOCTORS !== 'undefined' && typeof SiteState !== 'undefined') {
-  SiteState.set('doctors', JSON.parse(JSON.stringify(DOCTORS)));
-}
   await SupabaseDB.loadAll();
   _supabaseLoaded = true;
   console.log('[CMS] Данные загружены с Supabase');
-  
-  // ── Врачи: DOCTORS const — главный источник истины ──────────────
-  if (typeof DOCTORS !== 'undefined' && typeof SiteState !== 'undefined') {
-    const current = SiteState.get('doctors') || {};
-    const fresh = JSON.parse(JSON.stringify(DOCTORS));
-    const isCustomPhoto = p => p && (p.startsWith('data:') || p.startsWith('blob:') || p.startsWith('http'));
-    Object.keys(fresh).forEach(k => {
-      if (current[k] && isCustomPhoto(current[k].photo)) {
-        fresh[k].photo = current[k].photo;
-      }
-    });
-    SiteState.set('doctors', fresh);
-    if (typeof RenderManager !== 'undefined') { RenderManager.renderDoctors(); }
-    console.log('[CMS] Врачи из DOCTORS const (' + Object.keys(DOCTORS).length + ' чел.)');
-  }
 } catch (e) {
   console.warn('[CMS] Supabase упал, пробуем localStorage:', e);
 
