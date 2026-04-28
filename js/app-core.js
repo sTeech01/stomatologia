@@ -503,11 +503,34 @@ const initApp = async function () {
     }
   }
 
+  // ── 0б. Мгновенный пре-рендер из localStorage ────────────────────
+  // Показываем кешированные данные до Supabase — устраняет мелькание
+  if (!_freshReset && typeof SiteState !== 'undefined') {
+    const _cached = SiteState.load();
+    if (_cached) {
+      // Страница «О клинике»
+      if (document.getElementById('about-history-output')) {
+        const _c = _cached.clinic || {};
+        renderAboutPageFromData({
+          sectionTitle: _c.sectionTitle||_c.name||'', clinicName: _c.name||'',
+          history: _c.history||'', founderQuote: _c.founderQuote||'',
+          founderName: _c.founderName||'', founderPosition: _c.founderPosition||'',
+          licNumber: _c.licNumber||'', licFile: _c.licFile||null,
+          photo1: _c.photo1||null, photo2: _c.photo2||null, photo3: _c.photo3||null,
+          technologies: _c.technologies||[]
+        });
+      }
+      // Динамические секции (отзывы, врачи, блог)
+      if (typeof RenderManager !== 'undefined') {
+        RenderManager.renderReviews();
+        RenderManager.renderDoctors();
+        RenderManager.renderBlogs();
+      }
+    }
+  }
+
   // ── Загрузка данных: Supabase → localStorage → DEFAULT_DATA ─────
   if (!_freshReset && typeof SupabaseDB !== 'undefined') {
-    // Показываем индикатор загрузки
-    document.body.style.opacity = '0.6';
-    document.body.style.transition = 'opacity 0.3s';
 try {
   await SupabaseDB.loadAll();
   _supabaseLoaded = true;
@@ -537,7 +560,6 @@ try {
     DataManager.initDefaults();
   }
 }
-    document.body.style.opacity = '1';
 
     // ── Проверка: не оказались ли все коллекции пустыми ───────────
     // Такое возможно даже без ошибки (RLS вернул [] без exception).
