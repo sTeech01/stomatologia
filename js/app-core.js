@@ -172,7 +172,15 @@ const RenderManager = {
     if (pageGrid) pageGrid.innerHTML = html;
     const homeGrid = document.getElementById('home-docs-grid');
     if (homeGrid) {
-      homeGrid.innerHTML = html;
+      const entries = Object.entries(doctors);
+
+      // перемешиваем
+      const shuffled = entries.sort(() => 0.5 - Math.random());
+
+      // берём только 4
+      const selected = shuffled.slice(0, 4);
+
+      homeGrid.innerHTML = selected.map(([id, doc]) => _card(id, doc)).join('');
       if (!homeGrid._docClickBound) {
         homeGrid._docClickBound = true;
         homeGrid.addEventListener('click', e => { const card=e.target.closest('[data-doc-id]'); if(card) openDocModal(card.dataset.docId); });
