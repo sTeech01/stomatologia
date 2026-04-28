@@ -548,6 +548,21 @@ if (typeof DOCTORS !== 'undefined' && typeof SiteState !== 'undefined') {
   await SupabaseDB.loadAll();
   _supabaseLoaded = true;
   console.log('[CMS] Данные загружены с Supabase');
+  
+  // ── Врачи: DOCTORS const — главный источник истины ──────────────
+  if (typeof DOCTORS !== 'undefined' && typeof SiteState !== 'undefined') {
+    const current = SiteState.get('doctors') || {};
+    const fresh = JSON.parse(JSON.stringify(DOCTORS));
+    const isCustomPhoto = p => p && (p.startsWith('data:') || p.startsWith('blob:') || p.startsWith('http'));
+    Object.keys(fresh).forEach(k => {
+      if (current[k] && isCustomPhoto(current[k].photo)) {
+        fresh[k].photo = current[k].photo;
+      }
+    });
+    SiteState.set('doctors', fresh);
+    if (typeof RenderManager !== 'undefined') { RenderManager.renderDoctors(); }
+    console.log('[CMS] Врачи из DOCTORS const (' + Object.keys(DOCTORS).length + ' чел.)');
+  }
 } catch (e) {
   console.warn('[CMS] Supabase упал, пробуем localStorage:', e);
 
@@ -641,22 +656,6 @@ if (typeof DOCTORS !== 'undefined' && typeof SiteState !== 'undefined') {
       SiteState.reset();
       if (typeof CMS_VERSION !== 'undefined') SiteState.set('_version', CMS_VERSION);
     }
-  }
-
-  // ── Врачи: DOCTORS const — всегда источник истины ──────────────
-  // Supabase-таблица doctors устарела. DOCTORS const в common.js — актуальный список.
-  // Сохраняем кастомные фото (base64/blob/http), если были загружены через CMS.
-  if (typeof DOCTORS !== 'undefined' && typeof SiteState !== 'undefined' && SiteState._data) {
-    const d = SiteState.get('doctors') || {};
-    const fresh = JSON.parse(JSON.stringify(DOCTORS));
-    const isCustomPhoto = p => p && (p.startsWith('data:') || p.startsWith('blob:') || p.startsWith('http'));
-    Object.keys(DOCTORS).forEach(k => {
-      if (d[k] && isCustomPhoto(d[k].photo)) fresh[k].photo = d[k].photo;
-    });
-    SiteState._data.doctors = fresh;
-    SiteState.save();
-    if (typeof RenderManager !== 'undefined') { RenderManager.renderDoctors(); }
-    console.log('[CMS] Врачи из DOCTORS const (' + Object.keys(DOCTORS).length + ' чел.)');
   }
 
   // ── Блог: imgUrl и url из DEFAULT_DATA (статические картинки/ссылки) ──
