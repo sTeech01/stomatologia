@@ -531,7 +531,7 @@ const initApp = async function () {
       // Динамические секции (отзывы, врачи, блог, видимость навигации)
       if (typeof RenderManager !== 'undefined') {
         RenderManager.renderReviews();
-        RenderManager.renderDoctors();
+        //RenderManager.renderDoctors();
         RenderManager.renderBlogs();
         RenderManager.applySectionVisibility();
       }
