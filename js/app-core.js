@@ -541,6 +541,10 @@ const initApp = async function () {
   // ── Загрузка данных: Supabase → localStorage → DEFAULT_DATA ─────
   if (!_freshReset && typeof SupabaseDB !== 'undefined') {
 try {
+// 👉 СРАЗУ подставляем врачей, чтобы не было пустоты
+if (typeof DOCTORS !== 'undefined' && typeof SiteState !== 'undefined') {
+  SiteState.set('doctors', JSON.parse(JSON.stringify(DOCTORS)));
+}
   await SupabaseDB.loadAll();
   _supabaseLoaded = true;
   console.log('[CMS] Данные загружены с Supabase');
