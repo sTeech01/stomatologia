@@ -4,7 +4,7 @@
 'use strict';
 
 const CMS_KEY = 'ds_siteData';
-const CMS_VERSION = 6; // увеличьте при смене данных клиники
+const CMS_VERSION = 7; // увеличьте при смене данных клиники
 
 const CMS_DEFAULTS = {
   clinic: {

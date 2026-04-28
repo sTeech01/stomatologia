@@ -630,21 +630,19 @@ try {
     }
   }
 
-  // ── Врачи: DOCTORS const — fallback когда Supabase не вернул данных ──
-  // Если Supabase загружен и вернул врачей — НЕ трогаем (Supabase = источник истины).
-  // Если Supabase не подключён или вернул пустую коллекцию — используем DOCTORS const.
+  // ── Врачи: DOCTORS const — всегда источник истины ──────────────
+  // Supabase-таблица doctors устарела. DOCTORS const в common.js — актуальный список.
+  // Сохраняем кастомные фото (base64/blob/http), если были загружены через CMS.
   if (typeof DOCTORS !== 'undefined' && typeof SiteState !== 'undefined' && SiteState._data) {
     const d = SiteState.get('doctors') || {};
-    if (!_supabaseLoaded || Object.keys(d).length === 0) {
-      const fresh = JSON.parse(JSON.stringify(DOCTORS));
-      const isCustomPhoto = p => p && (p.startsWith('data:') || p.startsWith('blob:') || p.startsWith('http'));
-      Object.keys(DOCTORS).forEach(k => {
-        if (d[k] && isCustomPhoto(d[k].photo)) fresh[k].photo = d[k].photo;
-      });
-      SiteState._data.doctors = fresh;
-      SiteState.save();
-      console.log('[CMS] Врачи из DOCTORS const (' + Object.keys(DOCTORS).length + ' чел.)');
-    }
+    const fresh = JSON.parse(JSON.stringify(DOCTORS));
+    const isCustomPhoto = p => p && (p.startsWith('data:') || p.startsWith('blob:') || p.startsWith('http'));
+    Object.keys(DOCTORS).forEach(k => {
+      if (d[k] && isCustomPhoto(d[k].photo)) fresh[k].photo = d[k].photo;
+    });
+    SiteState._data.doctors = fresh;
+    SiteState.save();
+    console.log('[CMS] Врачи из DOCTORS const (' + Object.keys(DOCTORS).length + ' чел.)');
   }
 
   // ── Блог: imgUrl и url из DEFAULT_DATA (статические картинки/ссылки) ──
