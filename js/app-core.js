@@ -683,7 +683,6 @@ try {
   }
 
   if (typeof runCounters       === 'function') setTimeout(runCounters, 400);
-  if (typeof shuffleHomeDoctors === 'function') shuffleHomeDoctors();
 
   // О клинике
   let aboutData = null;
