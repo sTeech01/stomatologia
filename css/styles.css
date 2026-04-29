@@ -1430,6 +1430,8 @@ body.fs-xl{zoom:1.3 !important}
     gap:16px;
   }
   .footer-grid>div:first-child{grid-column:span 2}
+  .srv-grid,.blog-grid,.cases-grid{grid-template-columns:1fr;gap:16px}
+  .section{padding:48px 20px}
   .srv-img,.srv-img.srv-img-photo{height:auto;aspect-ratio:16/9}
   .blog-img{height:auto;aspect-ratio:16/9}
   .h-float.hf2{
@@ -1454,7 +1456,7 @@ body.fs-xl{zoom:1.3 !important}
   .mob-nav{top:60px}
   .a11y-panel{bottom:76px;right:8px;width:calc(100vw - 16px);max-height:calc(100vh - 160px);overflow-y:auto}
   .fab-bar{bottom:76px;right:10px}
-  .section{padding:48px 16px}
+  .section{padding:48px 20px}
   .s-title{font-size:clamp(26px,7vw,38px)}
 
   .hero-title{font-size:clamp(32px,9vw,50px)}
