@@ -225,9 +225,8 @@ const RenderManager = {
     if (document.getElementById('services-grid')) return;
     const page = document.getElementById('page-services');
     if (!page) return;
-    const wrap = document.createElement('section');
-    wrap.className = 'section';
-    wrap.style.cssText = 'padding-top:48px';
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'padding-top:48px;padding-bottom:48px';
     wrap.innerHTML = `<div class="section-inner">
       <div style="margin-bottom:32px;text-align:center">
         <div class="s-tag">Прайс-лист</div>
