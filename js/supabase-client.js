@@ -27,8 +27,6 @@ let _session = null;
 // Единственный источник истины — DOCTORS const из common.js.
 // Supabase используется только для custom-фото (загруженных через CMS).
 // _applyDoctors вызывается: 1) из события doctors:ready  2) из loadAll()
-let _lastDoctorsHash = null;
-
 function _applyDoctors(supabaseMap) {
   if (typeof DOCTORS === 'undefined') return;
   if (typeof SiteState === 'undefined') return;
@@ -45,9 +43,12 @@ function _applyDoctors(supabaseMap) {
     if (isCustomPhoto(ph)) fresh[k].photo = ph;
   });
 
-  const hash = Object.keys(fresh).sort().map(k => `${k}:${fresh[k].photo}`).join('|');
-  if (hash === _lastDoctorsHash) return;
-  _lastDoctorsHash = hash;
+  // Сравниваем с ТЕКУЩИМ состоянием SiteState (не с прошлым вызовом):
+  // loadAll() перезаписывает SiteState._data целиком, поэтому нужен свежий срез.
+  const toHash = obj => Object.keys(obj).sort().map(k => `${k}:${obj[k]?.photo}`).join('|');
+  const freshHash   = toHash(fresh);
+  const currentHash = toHash(SiteState.get('doctors') || {});
+  if (freshHash === currentHash) return;
 
   SiteState._data.doctors = fresh;
   SiteState.save();
