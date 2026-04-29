@@ -250,7 +250,7 @@ const RenderManager = {
     grid.innerHTML = entries.map(([id,b]) => {
       const cls = b.imgClass||'bi1';
       const imgDiv = b.imgUrl
-        ? `<div class="blog-img" style="background-image:url('${Utils.escapeHtml(b.imgUrl)}');background-size:cover;background-position:center top"></div>`
+        ? `<div class="blog-img"><img src="${Utils.escapeHtml(b.imgUrl)}" alt="${Utils.escapeHtml(b.title||'')}" loading="lazy"></div>`
         : `<div class="blog-img ${cls}"></div>`;
       // Определяем excerpt: если rich-text — отображаем с разметкой, иначе plain
       const excerptHtml = b.excerpt
@@ -263,7 +263,7 @@ const RenderManager = {
           <div class="blog-tit">${Utils.escapeHtml(b.title)}</div>
           <p class="blog-exc">${excerptHtml}</p>
           <div class="blog-more">Читать →</div>
-        </div></div>`;
+        </div></a>`;
     }).join('');
   },
 

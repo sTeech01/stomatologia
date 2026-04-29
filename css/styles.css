@@ -1441,7 +1441,8 @@ body.fs-xl{zoom:1.3 !important}
   .srv-img img{position:static;height:auto !important;object-position:left top}
   .sp-cat-img{height:auto !important}
   .sp-cat-img-photo{position:static !important;height:auto !important}
-  .blog-img{height:180px}
+  .blog-img{height:auto !important}
+  .blog-img img{position:static;height:auto !important;object-position:center top}
   .h-float.hf2{
     top:16px;left:12px;
     background:linear-gradient(135deg,#b7d0ec,#d9e2ed);
