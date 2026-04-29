@@ -1434,17 +1434,17 @@ body.fs-xl{zoom:1.3 !important}
   .blog-img{height:auto;aspect-ratio:16/9}
   .h-float.hf2{
     top:16px;left:12px;
-    background:linear-gradient(135deg,#38bdf8,#0284c7);
+    background:linear-gradient(135deg,#b7d0ec,#d9e2ed);
     border:none;
-    box-shadow:0 6px 16px rgba(2,132,199,0.35);
+    box-shadow:0 6px 16px rgba(100,140,190,0.25);
     padding:8px 12px;
     border-radius:12px;
     gap:6px;
   }
-  .hf2 .hf-ico{color:#fff;font-size:16px}
+  .hf2 .hf-ico{color:#2d5a8a;font-size:16px}
   .hf2 .hf-ico svg{width:16px;height:16px}
-  .hf2 .hf-t{color:#fff;font-size:11px}
-  .hf2 .hf-s{color:rgba(255,255,255,0.85);font-size:10px}
+  .hf2 .hf-t{color:#1e3a5f;font-size:11px}
+  .hf2 .hf-s{color:#3d6a9a;font-size:10px}
 }
 
 @media(max-width:640px){
