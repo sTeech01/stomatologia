@@ -229,7 +229,7 @@ const RenderManager = {
     wrap.className = 'section';
     wrap.style.cssText = 'padding-top:48px';
     wrap.innerHTML = `<div class="section-inner">
-      <div style="margin-bottom:32px">
+      <div style="margin-bottom:32px;text-align:center">
         <div class="s-tag">Прайс-лист</div>
         <h2 class="s-title" style="margin-top:8px">Все услуги и цены</h2>
       </div>
