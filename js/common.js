@@ -343,3 +343,9 @@ document.addEventListener('DOMContentLoaded', function() {
     setTheme(t); setFont(f);
   } catch(e) {}
 });
+
+// ── Сигнал о готовности DOCTORS const ────────────────────────────
+// common.js загружается последним (defer), DOM уже готов.
+// Слушатель в supabase-client.js ловит это событие и сразу применяет врачей.
+window._doctorsReady = true;
+window.dispatchEvent(new CustomEvent('doctors:ready'));

@@ -23,7 +23,44 @@ if (!_sb) {
 // ── 2. СЕССИЯ (JWT только в памяти, не в localStorage) ──────────
 let _session = null;
 
-// ── 3. ЗАГРУЗКА ДАННЫХ (для посетителей) ────────────────────────
+// ── 3. ВРАЧИ: событийная модель (race-condition-free) ────────────
+// Единственный источник истины — DOCTORS const из common.js.
+// Supabase используется только для custom-фото (загруженных через CMS).
+// _applyDoctors вызывается: 1) из события doctors:ready  2) из loadAll()
+let _lastDoctorsHash = null;
+
+function _applyDoctors(supabaseMap) {
+  if (typeof DOCTORS === 'undefined') return;
+  if (typeof SiteState === 'undefined') return;
+  if (!SiteState._data) SiteState.load();
+  if (!SiteState._data) return;
+
+  const fresh = JSON.parse(JSON.stringify(DOCTORS));
+  const isCustomPhoto = p => p && (p.startsWith('data:') || p.startsWith('blob:') || p.startsWith('http'));
+  const src = supabaseMap || (SiteState.get('doctors') || {});
+
+  Object.keys(DOCTORS).forEach(k => {
+    const sp = src[k]; if (!sp) return;
+    const ph = sp.photo || sp.photo_url || null;
+    if (isCustomPhoto(ph)) fresh[k].photo = ph;
+  });
+
+  const hash = Object.keys(fresh).sort().map(k => `${k}:${fresh[k].photo}`).join('|');
+  if (hash === _lastDoctorsHash) return;
+  _lastDoctorsHash = hash;
+
+  SiteState._data.doctors = fresh;
+  SiteState.save();
+  if (typeof RenderManager !== 'undefined') RenderManager.renderDoctors();
+  console.log('[Doctors] Применены из DOCTORS const (' + Object.keys(fresh).length + ' чел.)');
+}
+
+// Подписка: common.js диспатчит doctors:ready как только DOCTORS загружен
+window.addEventListener('doctors:ready', function() { _applyDoctors(null); });
+// Если common.js уже выполнился до регистрации слушателя
+if (window._doctorsReady) _applyDoctors(null);
+
+// ── 4. ЗАГРУЗКА ДАННЫХ (для посетителей) ────────────────────────
 const SupabaseDB = {
 
   /**
@@ -83,22 +120,9 @@ const SupabaseDB = {
     const toMap = (arr) => (arr || []).reduce((m, r) => ({ ...m, [r.id]: r }), {});
 
     // Нормализуем поля врачей (photo_url → photo)
-    let doctorsMap = toMap(
+    const doctorsMap = toMap(
       (doctors.data || []).map(d => ({ ...d, photo: d.photo_url || null }))
     );
-
-    // 👉 ЕСЛИ есть DOCTORS — используем их как основу
-    if (typeof DOCTORS !== 'undefined') {
-      const fresh = JSON.parse(JSON.stringify(DOCTORS));
-
-      Object.keys(fresh).forEach(k => {
-        if (doctorsMap[k] && doctorsMap[k].photo) {
-          fresh[k].photo = doctorsMap[k].photo;
-        }
-      });
-
-      doctorsMap = fresh;
-    }
 
     // Нормализуем поля блогов (img_class → imgClass, page_id → pageId)
     const blogsMap = toMap(
@@ -145,6 +169,9 @@ const SupabaseDB = {
       if (typeof SiteState._fill === 'function') {
         SiteState._fill();
       }
+
+      // ── Применяем DOCTORS поверх Supabase (с учётом custom-фото из Storage) ──
+      _applyDoctors(doctorsMap);
     }
 
     // Возвращаем результат в формате { data, fromCache }
