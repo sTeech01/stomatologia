@@ -1201,6 +1201,7 @@ body.fs-xl{zoom:1.3 !important}
 }
 [data-theme="dark"] .price-card,[data-theme="contrast"] .price-card{border:1px solid var(--c-border);box-shadow:none;border-top:4px solid var(--c-accent)}
 .price-title{font-family:var(--fd);font-size:20px;font-weight:700;margin-bottom:16px;color:var(--c-text)}
+.price-title svg{display:none}
 .price-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--c-border);font-size:13px}
 .price-row:last-child{border-bottom:none}
 .price-name{color:var(--c-text2)}

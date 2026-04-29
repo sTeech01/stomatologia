@@ -220,22 +220,7 @@ const RenderManager = {
       </div>`).join('');
   },
 
-  // Инжектирует services-grid в page-services если его нет
-  _ensureServicesGrid() {
-    if (document.getElementById('services-grid')) return;
-    const page = document.getElementById('page-services');
-    if (!page) return;
-    const wrap = document.createElement('div');
-    wrap.style.cssText = 'padding-top:48px;padding-bottom:48px';
-    wrap.innerHTML = `<div class="section-inner">
-      <div style="margin-bottom:32px;text-align:center">
-        <div class="s-tag">Прайс-лист</div>
-        <h2 class="s-title" style="margin-top:8px">Все услуги и цены</h2>
-      </div>
-      <div id="services-grid"></div>
-    </div>`;
-    page.appendChild(wrap);
-  },
+  _ensureServicesGrid() {},
 
   renderReviews() {
     const reviews = (typeof SiteState!=='undefined')?(SiteState.get('reviews')||{}):DataManager.getReviews();
