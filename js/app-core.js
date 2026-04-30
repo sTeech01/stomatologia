@@ -117,7 +117,15 @@ const DEFAULT_DATA = {
 const DataManager = {
   KEYS: { DOCTORS:'ds_doctors', SERVICES:'ds_services', REVIEWS:'ds_reviews', BLOGS:'ds_blogs', PROMOS:'ds_promos', NEWS:'ds_news', ABOUT:'ds_about', SECTIONS:'ds_sections_visibility' },
   initDefaults() {
-    if (typeof SiteState !== 'undefined') { SiteState.load(); return; }
+    if (typeof SiteState !== 'undefined') {
+      SiteState.load();
+      const bl = SiteState.get('blogs');
+      if (bl && bl.blog_003 && bl.blog_003.excerpt === '123123123') {
+        SiteState.set('blogs.blog_003.excerpt', DEFAULT_DATA.blogs.blog_003.excerpt);
+        SiteState.save();
+      }
+      return;
+    }
     // fallback
     const checks = [['SERVICES',DEFAULT_DATA.services],['REVIEWS',DEFAULT_DATA.reviews],['BLOGS',DEFAULT_DATA.blogs],['PROMOS',DEFAULT_DATA.promos]];
     checks.forEach(([k,d]) => { if (!Utils.safeGetItem(this.KEYS[k]) || !Object.keys(Utils.safeGetItem(this.KEYS[k],{})).length) Utils.safeSetItem(this.KEYS[k],d); });
