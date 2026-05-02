@@ -109,6 +109,9 @@ const SiteState = {
       }
     };
     fill(this._data, CMS_DEFAULTS);
+    if (typeof DOCTORS !== 'undefined' && (!this._data.doctors || !Object.keys(this._data.doctors).length)) {
+      this._data.doctors = JSON.parse(JSON.stringify(DOCTORS));
+    }
   },
 
   _sync() {

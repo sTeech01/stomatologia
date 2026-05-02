@@ -732,7 +732,6 @@ function updateAdminStats() {
   s('servicesCount', Object.keys(SiteState.get('services')||{}).length);
   s('reviewsCount',  Object.keys(SiteState.get('reviews') ||{}).length);
   s('blogsCount',    Object.keys(SiteState.get('blogs')   ||{}).length);
-  s('promosCount',   Object.keys(SiteState.get('promos')  ||{}).length);
   try {
     var total = 0;
     for (var i=0;i<localStorage.length;i++) { var k=localStorage.key(i),v=localStorage.getItem(k); if(v) total+=v.length; }

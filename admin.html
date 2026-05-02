@@ -103,12 +103,6 @@
         </svg>
         Блог
       </div>
-      <div class="admin-tab" onclick="switchAdminTab('promos', event)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
-        </svg>
-        Акции
-      </div>
       <div class="admin-tab" onclick="switchAdminTab('visibility', event)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
@@ -179,7 +173,7 @@
           <svg style="width:16px;height:16px;display:inline;vertical-align:middle;margin-right:6px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
           </svg>
-          тбросить
+          Сбросить
         </button>
       </div>
     </div>
@@ -290,13 +284,6 @@
         <p class="admin-hint" style="margin-bottom:12px">Редактируйте заголовок, описание, список и прайс каждой страницы услуги.</p>
         <div class="admin-list" id="servicePagesList"></div>
 
-        <div class="admin-svc-section-label" style="margin-top:28px">Направления лечения</div>
-        <p class="admin-hint" style="margin-bottom:12px">Карточки в разделе «Услуги» — название, описание, фото.</p>
-        <div class="admin-list" id="serviceCatsList"></div>
-
-        <div class="admin-svc-section-label" style="margin-top:28px">Популярные услуги</div>
-        <p class="admin-hint" style="margin-bottom:12px">Карточки популярных услуг — название, цена, бейдж, фото.</p>
-        <div class="admin-list" id="servicePopsList"></div>
       </div>
     </div>
 
@@ -428,78 +415,6 @@
       </div>
     </div>
 
-    <!-- ТАБ: АКЦИИ -->
-    <div class="admin-tab-content" id="admin-tab-promos">
-      <div class="admin-section">
-        <h3>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
-          </svg>
-          Управление акциями
-        </h3>
-        <div class="admin-info">Добавляйте и редактируйте акции и специальные предложения
-        </div>
-
-        <div class="admin-edit-form" id="promoEditForm" style="display:none">
-          <div class="admin-edit-title" id="promoFormTitle">Добавить акцию</div>
-          
-          <div class="admin-field">
-            <label>Название акции *</label>
-            <input type="text" id="promoTitle" placeholder="Бесплатная консультация">
-          </div>
-
-          <div class="admin-field">
-            <label>Текст акции</label>
-            <textarea id="promoText" placeholder="Подробное описание акции..."></textarea>
-          </div>
-
-          <div class="admin-field">
-            <label>Бейдж (ярлык)</label>
-            <input type="text" id="promoBadge" placeholder="Всегда / Февраль 2025...">
-          </div>
-
-          <div class="admin-field">
-            <label>Цвет карточки</label>
-            <select id="promoColorClass">
-              <option value="pc1">тиний (pc1)</option>
-              <option value="pc2">Зелёный (pc2)</option>
-              <option value="pc3">Оранжевый (pc3)</option>
-            </select>
-          </div>
-
-          <div class="admin-field">
-            <label>Текст кнопки</label>
-            <input type="text" id="promoBtnText" placeholder="Оставить заявку">
-          </div>
-
-          <div class="admin-field">
-            <label>Действие кнопки (onclick)</label>
-            <input type="text" id="promoBtnAction" placeholder="openLeadModal('lead')">
-          </div>
-
-          <button class="admin-btn" onclick="savePromoEdit()">
-            <svg style="width:16px;height:16px;display:inline;vertical-align:middle;margin-right:6px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
-            </svg>
-            тохранить
-          </button>
-          <button class="admin-btn admin-btn-secondary" onclick="cancelPromoEdit()">
-            <svg style="width:16px;height:16px;display:inline;vertical-align:middle;margin-right:6px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
-            Отмена
-          </button>
-        </div>
-
-        <button class="admin-btn" onclick="showPromoForm()" id="addPromoBtn">
-          <svg style="width:16px;height:16px;display:inline;vertical-align:middle;margin-right:6px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
-          </svg>
-          Добавить акцию
-        </button>
-        <div class="admin-list" id="promosList"></div>
-      </div>
-    </div>
 
     <!-- ТАБ: ВИДИМОтТЬ тЕКЦИЙ -->
     <div class="admin-tab-content" id="admin-tab-visibility">
@@ -604,20 +519,6 @@
             </div>
           </div>
 
-          <div class="visibility-item">
-            <div class="visibility-item-header">
-              <div class="visibility-item-title">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
-                </svg>
-                Акции
-              </div>
-              <div class="admin-toggle">
-                <input type="checkbox" id="toggle-promos" onchange="toggleSection('promos')" checked>
-                <label for="toggle-promos"></label>
-              </div>
-            </div>
-          </div>
 
           <div class="visibility-item">
             <div class="visibility-item-header">
@@ -796,15 +697,6 @@
             <div class="admin-stat-prem-body">
               <div class="admin-stat-prem-num" id="blogsCount">0</div>
               <div class="admin-stat-prem-label">Статей</div>
-            </div>
-          </div>
-          <div class="admin-stat-prem">
-            <div class="admin-stat-prem-icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-            </div>
-            <div class="admin-stat-prem-body">
-              <div class="admin-stat-prem-num" id="promosCount">0</div>
-              <div class="admin-stat-prem-label">Акций</div>
             </div>
           </div>
         </div>
@@ -1033,9 +925,10 @@
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <script src="js/supabase-client.js?v=3" defer></script>
-<script src="admin/admin-cms.js?v=3" defer></script>
+<script src="admin/admin-cms.js?v=4" defer></script>
+<script src="js/common.js?v=3" defer></script>
 <script src="js/app-core.js?v=5" defer></script>
-<script src="admin/admin.js?v=2" defer></script>
+<script src="admin/admin.js?v=3" defer></script>
 </body>
 </html>
 
